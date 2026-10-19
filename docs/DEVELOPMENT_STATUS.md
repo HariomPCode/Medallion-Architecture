@@ -29,7 +29,7 @@
 | Phase | Description | Status | Branch | Final Commit | Push Verified | Tests (Last Run) | Notes |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | **1** | Repository Bootstrap & Baseline Audit | `COMPLETED` | `main` | `9f769e2` | `Verified` | `python scripts/audit_baseline.py` (ALL PASS) | Golden numbers match Appendix B 100% |
-| **2** | Backend Foundation, Data Access & Fixtures | `READY_FOR_REVIEW` | `main` | `607bc94` | `Pending push` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
+| **2** | Backend Foundation, Data Access & Fixtures | `READY_FOR_REVIEW` | `main` | `1276f9f` | `Verified` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
 | **3** | Core Analytics Endpoints | `NOT_STARTED` | — | — | — | — | Next authorized phase |
 | **4** | Complaint Explorer, Export & Data Quality APIs | `NOT_STARTED` | — | — | — | — | Blocked by Phase 3 |
 | **5** | Grounded AI Assistant (Backend) | `NOT_STARTED` | — | — | — | — | Blocked by Phase 4 |
