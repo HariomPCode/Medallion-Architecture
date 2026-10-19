@@ -1,0 +1,1174 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Finance Complaints Medallion API",
+    "description": "Grounded AI & Analytics API for CFPB Financial Consumer Complaints",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Process liveness check",
+        "description": "Returns 200 if the process is running and accepting HTTP connections.",
+        "operationId": "health_live_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Live Health Live Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Data readiness check",
+        "description": "Returns 200 if a validated snapshot is loaded in memory.\nReturns 503 if data is unavailable or failing validation.",
+        "operationId": "health_ready_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Health Ready Health Ready Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meta/dataset": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Dataset provenance and health metadata",
+        "description": "Returns dataset provenance, status, row counts, and refresh timestamps.",
+        "operationId": "get_dataset_metadata_api_v1_meta_dataset_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatasetMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meta/filters": {
+      "get": {
+        "tags": [
+          "Metadata"
+        ],
+        "summary": "Available filter dimensions and values",
+        "description": "Returns available dimensions, valid values, and hierarchy mappings for filtering.",
+        "operationId": "get_filters_metadata_api_v1_meta_filters_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FiltersMetaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "summary": "High-level KPI and timeliness metrics summary",
+        "description": "Returns total volume, dual timely response rates, in-progress counts, and coverage.",
+        "operationId": "get_dashboard_summary_api_v1_dashboard_summary_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/categories": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Category and sub-category volume and timely response rates (alias)",
+        "description": "Returns volume, share, and timeliness breakdown for categories or sub-categories.",
+        "operationId": "get_by_category_api_v1_analytics_categories_get",
+        "parameters": [
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "category",
+                "sub_category"
+              ],
+              "type": "string",
+              "description": "Aggregation level: category or sub_category",
+              "default": "category",
+              "title": "Group By"
+            },
+            "description": "Aggregation level: category or sub_category"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "total",
+                "timely_rate",
+                "name"
+              ],
+              "type": "string",
+              "description": "Sort field: total, timely_rate, or name",
+              "default": "total",
+              "title": "Sort"
+            },
+            "description": "Sort field: total, timely_rate, or name"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "description": "Sort direction: asc or desc",
+              "default": "desc",
+              "title": "Order"
+            },
+            "description": "Sort direction: asc or desc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByCategoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/by-category": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Category and sub-category volume and timely response rates",
+        "description": "Returns volume, share, and timeliness breakdown for categories or sub-categories.",
+        "operationId": "get_by_category_api_v1_analytics_by_category_get",
+        "parameters": [
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "category",
+                "sub_category"
+              ],
+              "type": "string",
+              "description": "Aggregation level: category or sub_category",
+              "default": "category",
+              "title": "Group By"
+            },
+            "description": "Aggregation level: category or sub_category"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "total",
+                "timely_rate",
+                "name"
+              ],
+              "type": "string",
+              "description": "Sort field: total, timely_rate, or name",
+              "default": "total",
+              "title": "Sort"
+            },
+            "description": "Sort field: total, timely_rate, or name"
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string",
+              "description": "Sort direction: asc or desc",
+              "default": "desc",
+              "title": "Order"
+            },
+            "description": "Sort direction: asc or desc"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ByCategoryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/trends": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Time-series complaint trends with partial-period flags and YoY growth",
+        "description": "Returns time-series volume trends, data-driven partial period flags, and YoY growth.",
+        "operationId": "get_trends_api_v1_analytics_trends_get",
+        "parameters": [
+          {
+            "name": "grain",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "year",
+                "month"
+              ],
+              "type": "string",
+              "description": "Time granularity: year or month",
+              "default": "year",
+              "title": "Grain"
+            },
+            "description": "Time granularity: year or month"
+          },
+          {
+            "name": "group_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "none",
+                "category"
+              ],
+              "type": "string",
+              "description": "Series breakdown: none or category",
+              "default": "none",
+              "title": "Group By"
+            },
+            "description": "Series breakdown: none or category"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrendsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/breakdown": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "Top-N distribution breakdown by dimension",
+        "description": "Returns top-N categories along the selected dimension with an 'Other' remainder bucket.",
+        "operationId": "get_breakdown_api_v1_analytics_breakdown_get",
+        "parameters": [
+          {
+            "name": "dimension",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "submitted_via",
+                "state",
+                "company_response",
+                "issue",
+                "product"
+              ],
+              "type": "string",
+              "description": "Target dimension to group and rank",
+              "title": "Dimension"
+            },
+            "description": "Target dimension to group and rank"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Max top items (1-50)",
+              "default": 10,
+              "title": "Limit"
+            },
+            "description": "Max top items (1-50)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BreakdownResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics/kpis": {
+      "get": {
+        "tags": [
+          "Analytics"
+        ],
+        "summary": "High-level KPI metrics summary",
+        "description": "Calculates KPI summary indicators (total, timely rates, in-progress, coverage).",
+        "operationId": "get_kpis_api_v1_analytics_kpis_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BreakdownItemSchema": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "share_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Pct"
+          },
+          "timely_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timely Rate"
+          },
+          "timely_rate_all_cases": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timely Rate All Cases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "total",
+          "share_pct",
+          "timely_rate",
+          "timely_rate_all_cases"
+        ],
+        "title": "BreakdownItemSchema",
+        "description": "One slice of a top-N breakdown."
+      },
+      "BreakdownResponse": {
+        "properties": {
+          "dimension": {
+            "type": "string",
+            "enum": [
+              "submitted_via",
+              "state",
+              "company_response",
+              "issue",
+              "product"
+            ],
+            "title": "Dimension"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BreakdownItemSchema"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "filters_applied": {
+            "$ref": "#/components/schemas/FiltersApplied"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dimension",
+          "limit",
+          "total",
+          "items",
+          "filters_applied"
+        ],
+        "title": "BreakdownResponse",
+        "description": "Top-N distribution breakdown with an 'Other' bucket (\u00a713.2 #8)."
+      },
+      "ByCategoryResponse": {
+        "properties": {
+          "group_by": {
+            "type": "string",
+            "enum": [
+              "category",
+              "sub_category"
+            ],
+            "title": "Group By"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryItemSchema"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "filters_applied": {
+            "$ref": "#/components/schemas/FiltersApplied"
+          }
+        },
+        "type": "object",
+        "required": [
+          "group_by",
+          "total",
+          "items",
+          "filters_applied"
+        ],
+        "title": "ByCategoryResponse",
+        "description": "Volume and timely metrics by category or sub-category (\u00a713.2 #6)."
+      },
+      "CategoryItemSchema": {
+        "properties": {
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "sub_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sub Category"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "share_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Pct"
+          },
+          "timely_yes": {
+            "type": "integer",
+            "title": "Timely Yes"
+          },
+          "timely_no": {
+            "type": "integer",
+            "title": "Timely No"
+          },
+          "timely_unknown": {
+            "type": "integer",
+            "title": "Timely Unknown"
+          },
+          "timely_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timely Rate"
+          },
+          "timely_rate_all_cases": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timely Rate All Cases"
+          }
+        },
+        "type": "object",
+        "required": [
+          "category",
+          "total",
+          "share_pct",
+          "timely_yes",
+          "timely_no",
+          "timely_unknown",
+          "timely_rate",
+          "timely_rate_all_cases"
+        ],
+        "title": "CategoryItemSchema",
+        "description": "Category or sub-category analytical item."
+      },
+      "CategoryMetaItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "sub_categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sub Categories"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "sub_categories"
+        ],
+        "title": "CategoryMetaItem",
+        "description": "Category name and associated sub-categories."
+      },
+      "DashboardSummaryResponse": {
+        "properties": {
+          "filters_applied": {
+            "$ref": "#/components/schemas/FiltersApplied"
+          },
+          "total_complaints": {
+            "type": "integer",
+            "title": "Total Complaints"
+          },
+          "timely": {
+            "$ref": "#/components/schemas/TimelyStats"
+          },
+          "in_progress_count": {
+            "type": "integer",
+            "title": "In Progress Count"
+          },
+          "category_count": {
+            "type": "integer",
+            "title": "Category Count"
+          },
+          "sub_category_count": {
+            "type": "integer",
+            "title": "Sub Category Count"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/DateCoverage"
+          },
+          "pipeline_refreshed_at": {
+            "type": "string",
+            "title": "Pipeline Refreshed At"
+          },
+          "data_origin": {
+            "type": "string",
+            "title": "Data Origin"
+          }
+        },
+        "type": "object",
+        "required": [
+          "filters_applied",
+          "total_complaints",
+          "timely",
+          "in_progress_count",
+          "category_count",
+          "sub_category_count",
+          "coverage",
+          "pipeline_refreshed_at",
+          "data_origin"
+        ],
+        "title": "DashboardSummaryResponse",
+        "description": "KPI and high-level analytical summary response (\u00a713.2 #5)."
+      },
+      "DatasetMetaResponse": {
+        "properties": {
+          "data_origin": {
+            "type": "string",
+            "title": "Data Origin"
+          },
+          "data_status": {
+            "type": "string",
+            "title": "Data Status"
+          },
+          "total_silver_records": {
+            "type": "integer",
+            "title": "Total Silver Records"
+          },
+          "row_counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Row Counts"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/DateCoverage"
+          },
+          "pipeline_refreshed_at": {
+            "type": "string",
+            "title": "Pipeline Refreshed At"
+          },
+          "quality_analysis_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quality Analysis At"
+          },
+          "skew_warning": {
+            "type": "boolean",
+            "title": "Skew Warning"
+          },
+          "schema_version": {
+            "type": "string",
+            "title": "Schema Version",
+            "default": "1.0.0"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data_origin",
+          "data_status",
+          "total_silver_records",
+          "row_counts",
+          "coverage",
+          "pipeline_refreshed_at",
+          "quality_analysis_at",
+          "skew_warning",
+          "warnings"
+        ],
+        "title": "DatasetMetaResponse",
+        "description": "Dataset provenance, record counts, and status indicators (\u00a713.2 #3)."
+      },
+      "DateCoverage": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "title": "DateCoverage",
+        "description": "Date span covered by complaints in scope."
+      },
+      "FiltersApplied": {
+        "properties": {
+          "category": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Category"
+          },
+          "sub_category": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sub Category"
+          },
+          "submitted_via": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Submitted Via"
+          },
+          "state": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "State"
+          },
+          "company_response": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Company Response"
+          },
+          "timely": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Timely"
+          },
+          "issue": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issue"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date From"
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date To"
+          }
+        },
+        "type": "object",
+        "title": "FiltersApplied",
+        "description": "Normalized filter parameters recorded in API response payloads."
+      },
+      "FiltersMetaResponse": {
+        "properties": {
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/CategoryMetaItem"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "submitted_via": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Submitted Via"
+          },
+          "state": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "State"
+          },
+          "company_response": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Company Response"
+          },
+          "timely": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Timely"
+          },
+          "issues": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issues"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/DateCoverage"
+          }
+        },
+        "type": "object",
+        "required": [
+          "categories",
+          "submitted_via",
+          "state",
+          "company_response",
+          "timely",
+          "issues",
+          "coverage"
+        ],
+        "title": "FiltersMetaResponse",
+        "description": "Metadata response detailing available filter dimensions and valid values (\u00a713.2 #4)."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "TimelyStats": {
+        "properties": {
+          "yes": {
+            "type": "integer",
+            "title": "Yes"
+          },
+          "no": {
+            "type": "integer",
+            "title": "No"
+          },
+          "unknown": {
+            "type": "integer",
+            "title": "Unknown"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate",
+            "description": "Primary timely response rate (Yes / (Yes + No) * 100). None if denominator is 0."
+          },
+          "rate_denominator": {
+            "type": "integer",
+            "title": "Rate Denominator",
+            "description": "Cases with recorded timeliness (Yes + No), excluding open cases."
+          },
+          "rate_all_cases": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate All Cases",
+            "description": "Legacy timely response rate dividing by total complaints (Yes / Total * 100)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "yes",
+          "no",
+          "unknown",
+          "rate",
+          "rate_denominator",
+          "rate_all_cases"
+        ],
+        "title": "TimelyStats",
+        "description": "Timeliness breakdown and dual rate calculations."
+      },
+      "TrendPointSchema": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "is_partial": {
+            "type": "boolean",
+            "title": "Is Partial"
+          },
+          "yoy_change_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Yoy Change Pct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "total",
+          "is_partial",
+          "yoy_change_pct"
+        ],
+        "title": "TrendPointSchema",
+        "description": "A period's volume, partial status, and YoY growth."
+      },
+      "TrendSeriesSchema": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/TrendPointSchema"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "points"
+        ],
+        "title": "TrendSeriesSchema",
+        "description": "A named series of trend points."
+      },
+      "TrendsResponse": {
+        "properties": {
+          "grain": {
+            "type": "string",
+            "enum": [
+              "year",
+              "month"
+            ],
+            "title": "Grain"
+          },
+          "group_by": {
+            "type": "string",
+            "enum": [
+              "none",
+              "category"
+            ],
+            "title": "Group By"
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/TrendSeriesSchema"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "total_series": {
+            "$ref": "#/components/schemas/TrendSeriesSchema"
+          },
+          "filters_applied": {
+            "$ref": "#/components/schemas/FiltersApplied"
+          }
+        },
+        "type": "object",
+        "required": [
+          "grain",
+          "group_by",
+          "series",
+          "total_series",
+          "filters_applied"
+        ],
+        "title": "TrendsResponse",
+        "description": "Time-series complaint trends with partial-period flags and YoY (\u00a713.2 #7)."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

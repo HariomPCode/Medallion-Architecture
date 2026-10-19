@@ -82,6 +82,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # 4. Mount API routers
     app.include_router(health.router)
+    from app.api import analytics, dashboard, meta
+
+    app.include_router(meta.router)
+    app.include_router(dashboard.router)
+    app.include_router(analytics.router)
 
     return app
 

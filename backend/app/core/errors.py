@@ -64,6 +64,18 @@ class DataValidationError(AppError):
         )
 
 
+class ValidationException(AppError):
+    """Raised when client request parameters, query filters, or payloads fail domain validation."""
+
+    def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
+        super().__init__(
+            message=message,
+            code="VALIDATION_ERROR",
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            details=details,
+        )
+
+
 class DataSourceError(AppError):
     """Raised when data cannot be retrieved from storage or local filesystem."""
 

@@ -17,10 +17,10 @@
 
 ## Current Position
 
-- **Phase:** Phase 2 — Backend Foundation, Data Access and Fixtures
+- **Phase:** Phase 3 — Core Analytics APIs
 - **Day:** 5 of 5
 - **Status:** `READY_FOR_REVIEW`
-- **Next action:** Awaiting user review and authorization to proceed to Phase 3 (Core Analytics APIs).
+- **Next action:** Awaiting user review and authorization to proceed to Phase 4 (Complaint Explorer & Data Quality APIs).
 
 ---
 
@@ -29,8 +29,8 @@
 | Phase | Description | Status | Branch | Final Commit | Push Verified | Tests (Last Run) | Notes |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | **1** | Repository Bootstrap & Baseline Audit | `COMPLETED` | `main` | `9f769e2` | `Verified` | `python scripts/audit_baseline.py` (ALL PASS) | Golden numbers match Appendix B 100% |
-| **2** | Backend Foundation, Data Access & Fixtures | `READY_FOR_REVIEW` | `main` | `1276f9f` | `Verified` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
-| **3** | Core Analytics Endpoints | `NOT_STARTED` | — | — | — | — | Next authorized phase |
+| **2** | Backend Foundation, Data Access & Fixtures | `COMPLETED` | `main` | `1276f9f` | `Verified` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
+| **3** | Core Analytics Endpoints | `READY_FOR_REVIEW` | `main` | Pending commit | Pending push | `74 passed, 1 skipped` (92% backend coverage) | All M-01 to M-15 implemented; golden values match 100% |
 | **4** | Complaint Explorer, Export & Data Quality APIs | `NOT_STARTED` | — | — | — | — | Blocked by Phase 3 |
 | **5** | Grounded AI Assistant (Backend) | `NOT_STARTED` | — | — | — | — | Blocked by Phase 4 |
 | **6** | Backend Hardening & API Freeze | `NOT_STARTED` | — | — | — | — | Blocked by Phase 5 |
@@ -43,6 +43,33 @@
 ---
 
 ## Today's Log
+
+### 2026-10-19 — Phase 3, Days 1–5 (Core Analytics Endpoints)
+
+- **Completed:**
+  - Day 1: Created `backend/app/domain/metrics.py` defining authoritative specifications for metrics M-01 through M-15 with exact formulas, denominators, null handling, and limitations. Built `backend/app/analytics/metrics.py` re-export. Implemented `backend/app/domain/filters.py` (`ComplaintFilters` model, snapshot dimension validation against allowed values, fast vectorised boolean filtering). Implemented `backend/app/api/meta.py` (`GET /api/v1/meta/dataset` and `GET /api/v1/meta/filters`). Generated `docs/METRICS.md` with synchronization unit test.
+  - Day 2: Implemented `backend/app/domain/aggregates.py` (`compute_totals`, single `rate()` calculation helper), `backend/app/schemas/common.py`, and `backend/app/schemas/analytics.py`. Built `backend/app/api/dashboard.py` (`GET /api/v1/dashboard/summary`), returning total complaints, primary timely rate (96.06%), legacy timely rate (93.77%), in-progress cases (1,494), and date coverage.
+  - Day 3: Implemented `compute_by_category` in `aggregates.py` supporting `group_by=category` and `group_by=sub_category` with sorting whitelist (`total`, `timely_rate`, `name`). Implemented `GET /api/v1/analytics/by-category` and alias `GET /api/v1/analytics/categories` in `backend/app/api/analytics.py`. Reconciled against Appendix B golden sub-category table.
+  - Day 4: Implemented `compute_trends` with data-driven partial period detection (marking 2017 and 2023 as partial) and YoY calculations per M-08 (null for partial years, strictly computed for complete years 2019–2022). Implemented `compute_breakdown` supporting top-N and remainder `Other` bucket summing to total. Implemented `GET /api/v1/analytics/trends`, `GET /api/v1/analytics/breakdown`, and `GET /api/v1/analytics/kpis`.
+  - Day 5: Generated `docs/openapi.json` using `backend/scripts/export_openapi.py`. Authored draft API documentation in `docs/API.md`. Built property-based cross-endpoint consistency test in `backend/tests/integration/test_reconciliation.py` verifying mutual equality (`summary.total == by_category.total == trends.total == breakdown.total`) across 20 seeded random filter sets. Executed full validation suite.
+- **Tests executed:**
+  - `pytest --cov=app --cov-report=term-missing` → 74 passed, 1 skipped (92% backend statement coverage).
+  - `ruff check .` → All checks passed (0 errors).
+  - `ruff format --check .` → 49 files verified formatted.
+  - `mypy app` → Success (no issues found in 26 source files).
+  - `python scripts/audit_baseline.py` → 100% baseline metrics verified (0 discrepancies).
+  - `python scripts/reconcile_with_gold.py` → 100% Gold tables matched.
+- **Files created:**
+  - `backend/app/domain/__init__.py`, `backend/app/domain/metrics.py`, `backend/app/domain/filters.py`, `backend/app/domain/aggregates.py`
+  - `backend/app/analytics/__init__.py`, `backend/app/analytics/metrics.py`
+  - `backend/app/schemas/__init__.py`, `backend/app/schemas/common.py`, `backend/app/schemas/analytics.py`
+  - `backend/app/api/deps.py`, `backend/app/api/meta.py`, `backend/app/api/dashboard.py`, `backend/app/api/analytics.py`
+  - `backend/scripts/export_openapi.py`, `docs/API.md`, `docs/METRICS.md`, `docs/openapi.json`
+  - `backend/tests/unit/test_metrics.py`, `backend/tests/unit/test_filters.py`, `backend/tests/unit/test_aggregates.py`
+  - `backend/tests/api/test_meta.py`, `backend/tests/api/test_dashboard.py`, `backend/tests/api/test_analytics.py`
+  - `backend/tests/integration/__init__.py`, `backend/tests/integration/test_reconciliation.py`
+- **Files modified:**
+  - `backend/app/core/errors.py`, `backend/app/main.py`, `docs/DEVELOPMENT_STATUS.md`
 
 ### 2026-10-19 — Phase 2, Days 1–5 (Backend Foundation, Data Access and Fixtures)
 
