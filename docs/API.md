@@ -1,15 +1,48 @@
-# Backend API Specification
+# Backend API Specification (Frozen v1.0)
 
 **Document:** `docs/API.md`  
-**Phase:** Phase 5 — Grounded AI Assistant Backend  
+**Phase:** Phase 6 — Backend Hardening & API Freeze  
+**Contract Version:** `v1.0-frozen`  
 **Base URL:** `/api/v1`  
 **Schema Definition:** [`docs/openapi.json`](file:///D:/Documents/New%20folder/Finance-Complaints-Medallion-main/docs/openapi.json)  
 
-All endpoints communicate exclusively via JSON over HTTPS. All field names use `snake_case`. Every response includes an `X-Request-ID` header.
+> [!IMPORTANT]
+> **API Freeze Rule:** Following Phase 6, this contract is frozen. All backend modifications in subsequent phases must be **purely additive** (optional query parameters or non-breaking response fields), documented in the "Post-Freeze Changes" section, covered by tests, and reflected in regenerated `docs/openapi.json`. Any breaking contract modifications require explicit human architectural review and decision registration.
+
+All endpoints communicate exclusively via JSON over HTTPS (except streaming CSV export). All field names use `snake_case`. Every response includes an `X-Request-ID` header.
 
 ---
 
-## 1. Global Conventions & Error Envelope
+## 1. Security & Middleware Controls
+
+### 1.1 Internal API Key Authentication
+When `INTERNAL_API_KEY` is configured in the environment:
+- All incoming requests must supply the header: `X-Internal-Key: <key>`.
+- Keys are verified in constant time using `secrets.compare_digest` to prevent timing attacks.
+- Invalid or missing keys return `401 UNAUTHORIZED`.
+- **Public Exemptions:** `/health/live`, `/health/ready`, `/docs`, `/openapi.json`, and preflight `OPTIONS` requests do not require authentication.
+
+### 1.2 Rate Limiting
+Enforced via `slowapi` with client IP address resolution (taking the first IP from `X-Forwarded-For` when behind proxies):
+- **Default Tier:** 120 requests/minute for general analytical, complaint, and metadata endpoints.
+- **Export Tier:** 10 requests/hour for `/api/v1/complaints/export`.
+- **AI Assistant Tier:** 10 requests/minute for `/api/v1/assistant/chat`.
+- Exceeding rate limits returns `429 RATE_LIMITED` accompanied by a standard `Retry-After: <seconds>` HTTP header.
+
+### 1.3 Body Size Ceiling
+- All request bodies are strictly capped at **64 KB** (65,536 bytes) by `RequestBodyLimitMiddleware`.
+- Requests exceeding this threshold are immediately rejected with `413 PAYLOAD_TOO_LARGE` prior to JSON deserialization.
+
+### 1.4 Security Headers
+Injected into every response by `SecurityHeadersMiddleware`:
+- `X-Content-Type-Options: nosniff`
+- `X-Frame-Options: DENY`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Cache-Control: no-store, max-age=0` (health endpoints return `no-cache`)
+
+---
+
+## 2. Global Conventions & Error Envelope
 
 ### Standard Error Envelope
 
@@ -28,7 +61,10 @@ When any error occurs (HTTP 4xx or 5xx), the backend returns a uniform, sanitize
 
 #### Standard Error Codes:
 - `VALIDATION_ERROR` (HTTP 422): Malformed parameters, out-of-range dates, or unrecognized filter values.
+- `UNAUTHORIZED` (HTTP 401): Missing or invalid `X-Internal-Key` authentication header.
 - `NOT_FOUND` (HTTP 404): Requested entity or resource not found.
+- `PAYLOAD_TOO_LARGE` (HTTP 413): Request body exceeds the 64 KB limit.
+- `RATE_LIMITED` (HTTP 429): Rate limit exceeded for the client IP address.
 - `DATA_UNAVAILABLE` (HTTP 503): No valid data snapshot loaded in memory.
 - `INTERNAL_ERROR` (HTTP 500): Sanitized internal server failure (no stack traces or internals disclosed).
 
@@ -514,5 +550,16 @@ Unrecognized query parameters return `422 VALIDATION_ERROR` (`extra="forbid"`).
   - `answered`: User inquiry answered through validated tools and passed strict numeric grounding.
   - `unsupported`: Question exceeds dataset boundaries (specific company names, causation, forecasting, legal advice).
   - `degraded`: Upstream LLM unavailable/disabled; served via deterministic verified fallback templates.
+
+---
+
+## 4. Post-Freeze Changes Register
+
+This register records any additive changes introduced after the `v1.0-frozen` API contract freeze at Phase 6.
+
+| Change ID | Date | Endpoint | Type | Description | Author / Decision |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| *None* | — | — | — | Initial contract frozen at Phase 6 (`v1.0-frozen`). | Phase 6 Gate |
+
 
 

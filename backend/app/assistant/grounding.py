@@ -150,6 +150,9 @@ def verify_grounding(
         tool_numbers.update(collect_tool_numbers(tr.get("result", {})))
         tool_numbers.update(collect_tool_numbers(tr.get("arguments", {})))
 
+    if snapshot is not None and snapshot.silver_complaints is not None:
+        tool_numbers.add(float(len(snapshot.silver_complaints)))
+
     ungrounded: list[str] = []
     verified: list[str] = []
 
@@ -202,8 +205,13 @@ def render_fallback(tool_results: list[dict[str, Any]], snapshot: Snapshot) -> s
     Guaranteed to pass grounding verification 100% of the time.
     """
     if not tool_results:
+        tot = (
+            len(snapshot.silver_complaints)
+            if snapshot is not None and snapshot.silver_complaints is not None
+            else 62516
+        )
         return (
-            "The CFPB complaint dataset contains 62,516 financial complaints recorded between "
+            f"The CFPB complaint dataset contains {tot:,} financial complaints recorded between "
             "May 2017 and August 2023 across 5 financial product categories."
         )
 

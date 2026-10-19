@@ -1,19 +1,26 @@
 """
 backend/app/main.py
 -------------------
-FastAPI application factory and lifecycle management per §11 and §13.
+FastAPI application factory and lifecycle management per §11, §12, and §13.
+Implements production safeguards, security middleware, rate limiting, and CORS controls.
 """
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import health
 from app.core.config import Settings, get_settings
 from app.core.errors import register_error_handlers
 from app.core.logging import RequestIDMiddleware, configure_logging
+from app.core.ratelimit import register_rate_limiting
+from app.core.security import (
+    RequestBodyLimitMiddleware,
+    SecurityHeadersMiddleware,
+    verify_internal_api_key,
+)
 
 
 @asynccontextmanager
@@ -59,28 +66,44 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         version="1.0.0",
         docs_url="/docs" if app_settings.APP_ENV != "production" else None,
         redoc_url=None,
+        openapi_url="/openapi.json" if app_settings.APP_ENV != "production" else None,
         lifespan=lifespan,
+        dependencies=[Depends(verify_internal_api_key)],
     )
 
     app.state.settings = app_settings
 
-    # 1. Register Request-ID middleware (must be outermost)
-    app.add_middleware(RequestIDMiddleware)
+    # 1. Register custom error handlers
+    register_error_handlers(app)
 
-    # 2. Register CORS middleware
+    # 2. Register rate limiting state, handler, and middleware
+    register_rate_limiting(app)
+
+    # 3. Security headers middleware (nosniff, DENY, strict-origin, cache headers)
+    app.add_middleware(SecurityHeadersMiddleware)
+
+    # 4. Request body size limit middleware (enforces MAX_REQUEST_BYTES -> 413)
+    app.add_middleware(RequestBodyLimitMiddleware, max_bytes=app_settings.MAX_REQUEST_BYTES)
+
+    # 5. Register CORS middleware with explicit origins, no credentials, restricted headers
     app.add_middleware(
         CORSMiddleware,
         allow_origins=app_settings.cors_origins_list,
-        allow_credentials=True,
+        allow_credentials=False,
         allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["*"],
-        expose_headers=["X-Request-ID"],
+        allow_headers=["Content-Type", "X-Request-ID", "X-Internal-Key"],
+        expose_headers=[
+            "X-Request-ID",
+            "Retry-After",
+            "X-Export-Truncated",
+            "X-Export-Row-Count",
+        ],
     )
 
-    # 3. Register custom error handlers
-    register_error_handlers(app)
+    # 6. Register Request-ID middleware (must be outermost to track all requests)
+    app.add_middleware(RequestIDMiddleware)
 
-    # 4. Mount API routers
+    # 7. Mount API routers
     app.include_router(health.router)
     from app.api import analytics, assistant, complaints, dashboard, meta, quality
 

@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from app.api.deps import get_current_snapshot
 from app.assistant.orchestrator import AssistantOrchestrator
 from app.core.config import Settings, get_settings
+from app.core.ratelimit import get_ai_limit, limiter
 from app.data.snapshot import Snapshot
 from app.schemas.assistant import (
     AssistantChatRequest,
@@ -24,11 +25,11 @@ router = APIRouter(prefix="/api/v1/assistant", tags=["Assistant"])
 
 
 def get_orchestrator(
-    raw_request: Request,
+    request: Request,
     settings: Settings = Depends(get_settings),
 ) -> AssistantOrchestrator:
     """Dependency helper to create or retrieve orchestrator instance."""
-    app_settings = getattr(raw_request.app.state, "settings", None) or settings
+    app_settings = getattr(request.app.state, "settings", None) or settings
     return AssistantOrchestrator(settings=app_settings)
 
 
@@ -50,9 +51,10 @@ def get_assistant_config(
     summary="Chat with the AI Assistant",
     description="Submit a question to the grounded assistant. Operates across 8 read-only analytical tools with strict numeric grounding.",
 )
+@limiter.limit(get_ai_limit)
 async def chat_with_assistant(
-    request: AssistantChatRequest,
-    raw_request: Request,
+    chat_request: AssistantChatRequest,
+    request: Request,
     response: Response,
     snapshot: Snapshot = Depends(get_current_snapshot),
     orchestrator: AssistantOrchestrator = Depends(get_orchestrator),
@@ -61,12 +63,12 @@ async def chat_with_assistant(
     response.headers["Cache-Control"] = "no-store"
 
     # Extract request ID from state or header
-    request_id = getattr(raw_request.state, "request_id", None) or raw_request.headers.get(
+    request_id = getattr(request.state, "request_id", None) or request.headers.get(
         "X-Request-ID", "unknown"
     )
 
     return await orchestrator.handle_chat(
-        request=request,
+        request=chat_request,
         snapshot=snapshot,
         request_id=request_id,
     )

@@ -4,7 +4,7 @@ backend/app/api/meta.py
 Dataset provenance and available filter dimensions metadata endpoints (§13.2 #3 and #4).
 """
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 
 from app.api.deps import get_current_snapshot
 from app.data.snapshot import Snapshot, get_snapshot_manager
@@ -18,13 +18,14 @@ router = APIRouter(prefix="/api/v1/meta", tags=["Metadata"])
     "/dataset", response_model=DatasetMetaResponse, summary="Dataset provenance and health metadata"
 )
 async def get_dataset_metadata(
+    request: Request,
     response: Response,
     snapshot: Snapshot = Depends(get_current_snapshot),
 ) -> DatasetMetaResponse:
     """Returns dataset provenance, status, row counts, and refresh timestamps."""
     response.headers["Cache-Control"] = "private, max-age=60"
 
-    manager = get_snapshot_manager()
+    manager = getattr(request.app.state, "snapshot_manager", None) or get_snapshot_manager()
     df = snapshot.silver_complaints
 
     start_date = str(df["Date_submitted"].min()) if not df.empty else "1970-01-01"

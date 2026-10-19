@@ -11,11 +11,13 @@ from fastapi import APIRouter, Request, Response, status
 from app.core.config import Settings, get_settings
 from app.core.errors import build_error_envelope
 from app.core.logging import request_id_ctx
+from app.core.ratelimit import limiter
 
 router = APIRouter(prefix="/health", tags=["Health"])
 
 
 @router.get("/live", summary="Process liveness check")
+@limiter.exempt
 async def health_live(request: Request) -> dict[str, Any]:
     """Returns 200 if the process is running and accepting HTTP connections."""
     settings: Settings = getattr(request.app.state, "settings", None) or get_settings()
@@ -32,6 +34,7 @@ async def health_live(request: Request) -> dict[str, Any]:
 
 
 @router.get("/ready", summary="Data readiness check")
+@limiter.exempt
 async def health_ready(request: Request, response: Response) -> dict[str, Any]:
     """
     Returns 200 if a validated snapshot is loaded in memory.
@@ -39,7 +42,7 @@ async def health_ready(request: Request, response: Response) -> dict[str, Any]:
     """
     from app.data.snapshot import get_snapshot_manager  # lazy import
 
-    manager = get_snapshot_manager()
+    manager = getattr(request.app.state, "snapshot_manager", None) or get_snapshot_manager()
     current_snapshot = manager.current_snapshot
 
     req_id = (

@@ -1,0 +1,17 @@
+# .gitleaks.toml - Gitleaks configuration for Finance Complaints Medallion
+title = "Finance Complaints Medallion Secret Scanning"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for non-secret test fixtures and documentation"
+paths = [
+  '''^\.local_data/.*''',
+  '''^backend/tests/fixtures/.*''',
+  '''^docs/.*''',
+]
+regexes = [
+  '''test-internal-secret-key-[0-9a-zA-Z]+''',
+  '''test-custom-request-id-[0-9a-zA-Z]+''',
+]

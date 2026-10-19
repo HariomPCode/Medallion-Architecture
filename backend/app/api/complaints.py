@@ -13,6 +13,7 @@ from fastapi.responses import StreamingResponse
 from app.api.deps import get_current_snapshot, get_filters_dependency
 from app.core.config import get_settings
 from app.core.errors import ValidationException
+from app.core.ratelimit import get_export_limit, limiter
 from app.data.snapshot import Snapshot
 from app.domain.complaints import (
     get_complaint_detail,
@@ -75,6 +76,7 @@ def list_complaints(
 
 
 @router.get("/export")
+@limiter.limit(get_export_limit)
 def export_complaints(
     request: Request,
     filters: ComplaintFilters = Depends(get_filters_dependency(ALLOWED_EXPORT_PARAMS)),
@@ -89,7 +91,6 @@ def export_complaints(
     Streaming CSV export of filtered complaints (§13.2 #11).
     Enforces EXPORT_MAX_ROWS capping, formula-injection guards, and export headers.
     """
-    # TODO(AC-4.1): Connect RATE_LIMIT_EXPORT (10/hour) when slowapi limiter is wired in Phase 6.
     settings = get_settings()
     effective_sort = sort if sort is not None else sort_by
     effective_order = order if order is not None else sort_dir

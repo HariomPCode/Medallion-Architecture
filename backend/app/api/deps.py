@@ -25,9 +25,9 @@ COMMON_FILTER_PARAMS: Set[str] = {
 }
 
 
-def get_current_snapshot() -> Snapshot:
+def get_current_snapshot(request: Request) -> Snapshot:
     """Retrieves the active immutable Snapshot. Raises 503 DATA_UNAVAILABLE if unavailable."""
-    manager = get_snapshot_manager()
+    manager = getattr(request.app.state, "snapshot_manager", None) or get_snapshot_manager()
     current_snapshot = manager.current_snapshot
     if current_snapshot is None or manager.status == "unavailable":
         raise DataSourceError("No validated data snapshot is loaded in memory.")

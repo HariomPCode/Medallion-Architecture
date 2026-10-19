@@ -418,11 +418,21 @@ class FakeLLMClient:
             if total_series:
                 first = total_series[0]
                 last = total_series[-1]
-                y2018: dict[str, Any] = next((p for p in total_series if p.get("period") == "2018"), {})
-                y2019: dict[str, Any] = next((p for p in total_series if p.get("period") == "2019"), {})
-                y2020: dict[str, Any] = next((p for p in total_series if p.get("period") == "2020"), {})
-                y2021: dict[str, Any] = next((p for p in total_series if p.get("period") == "2021"), {})
-                y2022: dict[str, Any] = next((p for p in total_series if p.get("period") == "2022"), {})
+                y2018: dict[str, Any] = next(
+                    (p for p in total_series if p.get("period") == "2018"), {}
+                )
+                y2019: dict[str, Any] = next(
+                    (p for p in total_series if p.get("period") == "2019"), {}
+                )
+                y2020: dict[str, Any] = next(
+                    (p for p in total_series if p.get("period") == "2020"), {}
+                )
+                y2021: dict[str, Any] = next(
+                    (p for p in total_series if p.get("period") == "2021"), {}
+                )
+                y2022: dict[str, Any] = next(
+                    (p for p in total_series if p.get("period") == "2022"), {}
+                )
                 narrative = (
                     f"Annual complaint volume started in {first.get('period')} (partial year) with {first.get('total', 0):,} records. "
                     f"Between complete years 2018 and 2022, volumes were {y2018.get('total', 0):,} in 2018, "
