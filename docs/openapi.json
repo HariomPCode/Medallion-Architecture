@@ -886,6 +886,70 @@
           }
         }
       }
+    },
+    "/api/v1/assistant/config": {
+      "get": {
+        "tags": [
+          "Assistant"
+        ],
+        "summary": "Get AI Assistant configuration and suggested questions",
+        "description": "Returns assistant availability, current mode (llm or degraded), limits, and curated suggested questions.",
+        "operationId": "get_assistant_config_api_v1_assistant_config_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantConfigResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/assistant/chat": {
+      "post": {
+        "tags": [
+          "Assistant"
+        ],
+        "summary": "Chat with the AI Assistant",
+        "description": "Submit a question to the grounded assistant. Operates across 8 read-only analytical tools with strict numeric grounding.",
+        "operationId": "chat_with_assistant_api_v1_assistant_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantChatResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1138,6 +1202,165 @@
         ],
         "title": "AnomalySummaryBlock",
         "description": "Aggregate anomaly metrics from Isolation Forest model run."
+      },
+      "AssistantChatRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Question"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/ChatMessage"
+            },
+            "type": "array",
+            "maxItems": 6,
+            "title": "History"
+          },
+          "suggested_question_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suggested Question Id"
+          },
+          "context_filters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComplaintFilters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "AssistantChatRequest"
+      },
+      "AssistantChatResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "answered",
+              "unsupported",
+              "degraded",
+              "error"
+            ],
+            "title": "Status"
+          },
+          "answer_markdown": {
+            "type": "string",
+            "title": "Answer Markdown"
+          },
+          "data_blocks": {
+            "items": {
+              "$ref": "#/components/schemas/DataBlock"
+            },
+            "type": "array",
+            "title": "Data Blocks"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceItem"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "grounding": {
+            "$ref": "#/components/schemas/GroundingInfo"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "answer_markdown",
+          "grounding",
+          "request_id"
+        ],
+        "title": "AssistantChatResponse"
+      },
+      "AssistantConfigResponse": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "llm",
+              "degraded"
+            ],
+            "title": "Mode"
+          },
+          "suggested_questions": {
+            "items": {
+              "$ref": "#/components/schemas/SuggestedQuestion"
+            },
+            "type": "array",
+            "title": "Suggested Questions"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/AssistantLimits"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "mode",
+          "suggested_questions",
+          "limits"
+        ],
+        "title": "AssistantConfigResponse"
+      },
+      "AssistantLimits": {
+        "properties": {
+          "max_question_chars": {
+            "type": "integer",
+            "title": "Max Question Chars",
+            "default": 500
+          },
+          "max_history_turns": {
+            "type": "integer",
+            "title": "Max History Turns",
+            "default": 6
+          },
+          "daily_request_cap": {
+            "type": "integer",
+            "title": "Daily Request Cap",
+            "default": 300
+          },
+          "max_output_tokens": {
+            "type": "integer",
+            "title": "Max Output Tokens",
+            "default": 700
+          }
+        },
+        "type": "object",
+        "title": "AssistantLimits"
       },
       "BreakdownItemSchema": {
         "properties": {
@@ -1412,6 +1635,31 @@
         "title": "CategoryMetaItem",
         "description": "Category name and associated sub-categories."
       },
+      "ChatMessage": {
+        "properties": {
+          "role": {
+            "type": "string",
+            "enum": [
+              "user",
+              "assistant"
+            ],
+            "title": "Role"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Content"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "role",
+          "content"
+        ],
+        "title": "ChatMessage"
+      },
       "CompanyResponseAnomalyItem": {
         "properties": {
           "company_response": {
@@ -1619,6 +1867,90 @@
         "title": "ComplaintDetailResponse",
         "description": "Full detail response for a single complaint record."
       },
+      "ComplaintFilters": {
+        "properties": {
+          "category": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Category"
+          },
+          "sub_category": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sub Category"
+          },
+          "submitted_via": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Submitted Via"
+          },
+          "state": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "State"
+          },
+          "company_response": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Company Response"
+          },
+          "timely": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "type": "array",
+            "title": "Timely"
+          },
+          "issue": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Issue"
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date From"
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date To"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ComplaintFilters",
+        "description": "Normalized query filters for analytics, dashboard, and explorer endpoints."
+      },
       "ComplaintListItem": {
         "properties": {
           "complaint_id": {
@@ -1816,6 +2148,56 @@
         "title": "DashboardSummaryResponse",
         "description": "KPI and high-level analytical summary response (\u00a713.2 #5)."
       },
+      "DataBlock": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "table",
+              "kpi",
+              "series"
+            ],
+            "title": "Type"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "columns": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Columns"
+          },
+          "rows": {
+            "items": {
+              "items": {},
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "source_tool": {
+            "type": "string",
+            "title": "Source Tool"
+          },
+          "dataset_as_of": {
+            "type": "string",
+            "title": "Dataset As Of"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "title",
+          "columns",
+          "rows",
+          "source_tool",
+          "dataset_as_of"
+        ],
+        "title": "DataBlock"
+      },
       "DatasetMetaResponse": {
         "properties": {
           "data_origin": {
@@ -1905,6 +2287,43 @@
         ],
         "title": "DateCoverage",
         "description": "Date span covered by complaints in scope."
+      },
+      "EvidenceItem": {
+        "properties": {
+          "tool": {
+            "type": "string",
+            "title": "Tool"
+          },
+          "arguments": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Arguments"
+          },
+          "metric_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Metric Ids"
+          },
+          "dataset_origin": {
+            "type": "string",
+            "title": "Dataset Origin"
+          },
+          "pipeline_refreshed_at": {
+            "type": "string",
+            "title": "Pipeline Refreshed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tool",
+          "arguments",
+          "metric_ids",
+          "dataset_origin",
+          "pipeline_refreshed_at"
+        ],
+        "title": "EvidenceItem"
       },
       "FiltersApplied": {
         "properties": {
@@ -2044,6 +2463,29 @@
         ],
         "title": "FiltersMetaResponse",
         "description": "Metadata response detailing available filter dimensions and valid values (\u00a713.2 #4)."
+      },
+      "GroundingInfo": {
+        "properties": {
+          "checked": {
+            "type": "boolean",
+            "title": "Checked"
+          },
+          "ungrounded_numbers": {
+            "type": "integer",
+            "title": "Ungrounded Numbers"
+          },
+          "fallback_used": {
+            "type": "boolean",
+            "title": "Fallback Used"
+          }
+        },
+        "type": "object",
+        "required": [
+          "checked",
+          "ungrounded_numbers",
+          "fallback_used"
+        ],
+        "title": "GroundingInfo"
       },
       "HTTPValidationError": {
         "properties": {
@@ -2270,6 +2712,35 @@
         ],
         "title": "QualityTimestamps",
         "description": "Timestamps reflecting quality analysis execution and report freshness."
+      },
+      "SuggestedQuestion": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "tool_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Hint"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "text"
+        ],
+        "title": "SuggestedQuestion"
       },
       "TimelyStats": {
         "properties": {

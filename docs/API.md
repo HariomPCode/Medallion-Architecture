@@ -1,7 +1,7 @@
 # Backend API Specification
 
 **Document:** `docs/API.md`  
-**Phase:** Phase 4 — Complaint Explorer, Export & Data Quality APIs  
+**Phase:** Phase 5 — Grounded AI Assistant Backend  
 **Base URL:** `/api/v1`  
 **Schema Definition:** [`docs/openapi.json`](file:///D:/Documents/New%20folder/Finance-Complaints-Medallion-main/docs/openapi.json)  
 
@@ -395,4 +395,124 @@ Unrecognized query parameters return `422 VALIDATION_ERROR` (`extra="forbid"`).
   "total_pages": 126
 }
 ```
+
+---
+
+### 2.6 AI Assistant Endpoints
+
+#### `GET /api/v1/assistant/config`
+- **Purpose:** Surfaces AI Assistant availability, operational mode (`llm` or `degraded`), limits, and curated suggested questions (§13.3 #14).
+- **Parameters:** None.
+- **Cache-Control:** `private, max-age=60`
+- **Response Schema:** `AssistantConfigResponse`
+```json
+{
+  "available": true,
+  "mode": "llm",
+  "suggested_questions": [
+    {
+      "id": "sq_overview",
+      "text": "What is the total number of complaints and the timely response rate across the dataset?",
+      "tool_hint": "get_dataset_overview"
+    },
+    {
+      "id": "sq_top_category",
+      "text": "Which financial product category received the highest volume of consumer complaints?",
+      "tool_hint": "compare_categories"
+    },
+    {
+      "id": "sq_trends",
+      "text": "How did complaint volume trend year-over-year between 2018 and 2022?",
+      "tool_hint": "get_trend"
+    },
+    {
+      "id": "sq_channels",
+      "text": "What are the most common submission channels consumers use to file complaints?",
+      "tool_hint": "get_breakdown"
+    },
+    {
+      "id": "sq_dq",
+      "text": "What is the overall data quality composite score and what are its key limitations?",
+      "tool_hint": "get_quality_summary"
+    },
+    {
+      "id": "sq_timely_def",
+      "text": "How is the primary timely response rate calculated and how does it differ from the legacy rate?",
+      "tool_hint": "explain_metric"
+    }
+  ],
+  "limits": {
+    "max_question_chars": 500,
+    "max_history_turns": 6,
+    "daily_request_cap": 300,
+    "max_output_tokens": 700
+  }
+}
+```
+
+#### `POST /api/v1/assistant/chat`
+- **Purpose:** Answers user inquiries strictly grounded in backend analytical tools (T1–T8) with 100% numerical fact verification and deterministic fallback (§13.3 #15, §14).
+- **Cache-Control:** `no-store`
+- **Request Body:** `AssistantChatRequest`
+```json
+{
+  "question": "Which category received the highest volume of complaints?",
+  "history": [
+    {"role": "user", "content": "Hello"},
+    {"role": "assistant", "content": "How can I help you analyze financial complaints today?"}
+  ],
+  "context_filters": {
+    "date_from": "2020-01-01",
+    "date_to": "2022-12-31"
+  },
+  "suggested_question_id": null
+}
+```
+- **Response Schema:** `AssistantChatResponse`
+```json
+{
+  "status": "answered",
+  "answer_markdown": "Across categories, Banking accounts for the largest share with 24,814 complaints (39.69% of total) and a timely response rate of 96.4%.",
+  "data_blocks": [
+    {
+      "type": "table",
+      "title": "Category Comparison (category)",
+      "columns": ["Name", "Total Complaints", "Share", "Timely Rate"],
+      "rows": [
+        ["Banking", 24814, "39.69%", "96.4%"],
+        ["Payments", 19650, "31.43%", "95.73%"]
+      ],
+      "source_tool": "compare_categories",
+      "dataset_as_of": "2023-08-28"
+    }
+  ],
+  "evidence": [
+    {
+      "tool": "compare_categories",
+      "arguments": {"group_by": "category", "sort": "total"},
+      "metric_ids": ["M-01", "M-03", "M-04", "M-10"],
+      "dataset_origin": "local_snapshot",
+      "pipeline_refreshed_at": "2026-10-19T10:31:18.434201+00:00"
+    }
+  ],
+  "limitations": [
+    "Dataset contains 62,516 complaints from May 2017 to August 2023 across 5 financial categories.",
+    "Specific company names, consumer narratives, and root-cause explanations are not present in this dataset.",
+    "Years 2017 and 2023 are partial periods; annual YoY comparisons are computed only between 2018 and 2022.",
+    "Days submitted to received measures CFPB routing lag, not company response time.",
+    "ML Normality score is derived from the fixed 5% contamination parameter of the Isolation Forest model."
+  ],
+  "grounding": {
+    "checked": true,
+    "ungrounded_numbers": 0,
+    "fallback_used": false
+  },
+  "request_id": "403d6c53-1c3a-4a2e-8367-e9a93c7d6b38"
+}
+```
+- **Operational Status Values:**
+  - `answered`: User inquiry answered through validated tools and passed strict numeric grounding.
+  - `unsupported`: Question exceeds dataset boundaries (specific company names, causation, forecasting, legal advice).
+  - `degraded`: Upstream LLM unavailable/disabled; served via deterministic verified fallback templates.
+
 

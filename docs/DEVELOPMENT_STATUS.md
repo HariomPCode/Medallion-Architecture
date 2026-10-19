@@ -17,10 +17,10 @@
 
 ## Current Position
 
-- **Phase:** Phase 4 — Complaint Explorer, Export & Data Quality APIs
-- **Day:** 4 of 4
+- **Phase:** Phase 5 — Grounded AI Assistant (Backend)
+- **Day:** 6 of 6
 - **Status:** `COMPLETED`
-- **Next action:** Awaiting user review and authorization to proceed to Phase 5 (Grounded AI Assistant Backend).
+- **Next action:** Awaiting user review and authorization to proceed to Phase 6 (Backend Hardening & API Freeze).
 
 ---
 
@@ -32,8 +32,8 @@
 | **2** | Backend Foundation, Data Access & Fixtures | `COMPLETED` | `main` | `1276f9f` | `Verified` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
 | **3** | Core Analytics Endpoints | `COMPLETED` | `main` | `dc58b09` | `Verified` | `74 passed, 1 skipped` (92% backend coverage) | All M-01 to M-15 implemented; golden values match 100% |
 | **4** | Complaint Explorer, Export & Data Quality APIs | `COMPLETED` | `main` | `bfef48c` | `Verified` | `100 passed, 1 skipped` (93% backend coverage) | Endpoints 9–13, pipeline patch documented (PENDING_HUMAN) |
-| **5** | Grounded AI Assistant (Backend) | `NOT_STARTED` | — | — | — | — | Blocked by Phase 4 |
-| **6** | Backend Hardening & API Freeze | `NOT_STARTED` | — | — | — | — | Blocked by Phase 5 |
+| **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `pending` | `Pending Push` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
+| **6** | Backend Hardening & API Freeze | `NOT_STARTED` | — | — | — | — | Blocked by Phase 5 gate |
 | **7** | Frontend Foundation & Shell | `NOT_STARTED` | — | — | — | — | Blocked by Phase 6 |
 | **8** | Overview Dashboard & Category Analytics UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 7 |
 | **9** | Complaint Explorer & Data Quality Center UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 8 |
@@ -43,6 +43,35 @@
 ---
 
 ## Today's Log
+
+### 2026-10-19 — Phase 5, Days 1–6 (Grounded AI Assistant Backend)
+
+- **Completed:**
+  - Day 1: Implemented `backend/app/assistant/budget.py` (`BudgetTracker` enforcing `AI_DAILY_REQUEST_CAP` 300/day default with UTC midnight rollover and injectible clock). Created `backend/app/assistant/llm.py` (`LLMClient` protocol, `DisabledLLMClient` raising 503, `FakeLLMClient` supporting failure injections and deterministic narrative synthesis, `AzureOpenAIClient` with sanitized error mapping preventing credential leakage).
+  - Day 2: Implemented `backend/app/assistant/tools.py` providing read-only analytical tools T1–T8 (`get_dataset_overview`, `compare_categories`, `get_trend`, `get_breakdown`, `search_complaints`, `get_quality_summary`, `list_anomalies`, `explain_metric`) with standard envelope, provenance metadata, and $\le 20$ row cap.
+  - Day 3: Implemented `backend/app/assistant/prompts.py` (system prompt with mandatory regulatory clauses, rate denominator rule, CFPB routing delay distinction, partial-year rule, anomaly non-causal disclaimer, and prompt injection defense) and dynamic OpenAI tool schemas populated with live categories and sub-categories.
+  - Day 4: Implemented `backend/app/assistant/grounding.py` (strict numeral extraction ignoring metric codes and dates, `verify_grounding` requiring tool numeric evidence, deterministic `render_fallback` templates, and structured `data_blocks` generators).
+  - Day 5: Implemented `backend/app/assistant/orchestrator.py`, `backend/app/schemas/assistant.py`, and `backend/app/api/assistant.py` (`GET /api/v1/assistant/config`, `POST /api/v1/assistant/chat` with `Cache-Control: no-store`). Created 26-question evaluation suite in `backend/tests/assistant/eval_questions.yaml`, authored evaluation runner `backend/scripts/run_ai_eval.py`, and documented evaluation criteria in `docs/AI_EVAL.md`.
+  - Day 6: Executed comprehensive unit, API, safety, and evaluation suites. All 26 evaluation questions passed with 100% tool selection accuracy and 100% numeric grounding rate. Full test suite achieved 144 passed / 1 skipped with 86% overall coverage. External dependency `BLOCKED_EXTERNAL: live-llm-verification` documented.
+- **Tests executed:**
+  - `pytest backend --cov=backend/app --cov-report=term-missing` → 144 passed, 1 skipped.
+  - `python backend/scripts/run_ai_eval.py` → 26/26 passed (100% tool routing, 100% numeric grounding).
+  - `ruff check backend` → All checks passed (0 errors).
+  - `ruff format --check backend` → 77 files verified formatted.
+  - `mypy app` → Success (no issues found in 41 source files).
+  - `python scripts/audit_baseline.py` → 100% baseline metrics verified (0 discrepancies).
+  - `python backend/scripts/reconcile_with_gold.py` → 100% Gold tables matched.
+- **Files created:**
+  - `backend/app/assistant/__init__.py`, `backend/app/assistant/budget.py`, `backend/app/assistant/llm.py`
+  - `backend/app/assistant/tools.py`, `backend/app/assistant/prompts.py`, `backend/app/assistant/grounding.py`
+  - `backend/app/assistant/orchestrator.py`, `backend/app/schemas/assistant.py`, `backend/app/api/assistant.py`
+  - `backend/scripts/run_ai_eval.py`, `backend/tests/assistant/eval_questions.yaml`, `docs/AI_EVAL.md`
+  - `backend/tests/assistant/test_budget.py`, `backend/tests/assistant/test_llm.py`, `backend/tests/assistant/test_tools.py`
+  - `backend/tests/assistant/test_grounding.py`, `backend/tests/assistant/test_orchestrator.py`
+  - `backend/tests/assistant/test_prompts.py`, `backend/tests/assistant/test_safety.py`
+- **Files modified:**
+  - `backend/requirements.txt`, `backend/requirements-dev.txt`, `backend/pyproject.toml`, `backend/app/main.py`
+  - `docs/API.md`, `docs/openapi.json`, `docs/DEVELOPMENT_STATUS.md`
 
 ### 2026-10-19 — Phase 4, Days 1–4 (Complaint Explorer, Export & Data Quality APIs)
 

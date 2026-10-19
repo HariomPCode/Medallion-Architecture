@@ -8,7 +8,8 @@ python_functions = ["test_*"]
 addopts = "-ra -q --strict-markers"
 markers = [
     "azure: opt-in tests requiring live Azure access",
-    "slow: tests taking > 5 seconds"
+    "slow: tests taking > 5 seconds",
+    "anyio: mark test to run with anyio"
 ]
 
 [tool.ruff]

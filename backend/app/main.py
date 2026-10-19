@@ -82,13 +82,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     # 4. Mount API routers
     app.include_router(health.router)
-    from app.api import analytics, complaints, dashboard, meta, quality
+    from app.api import analytics, assistant, complaints, dashboard, meta, quality
 
     app.include_router(meta.router)
     app.include_router(dashboard.router)
     app.include_router(analytics.router)
     app.include_router(complaints.router)
     app.include_router(quality.router)
+    app.include_router(assistant.router)
 
     return app
 

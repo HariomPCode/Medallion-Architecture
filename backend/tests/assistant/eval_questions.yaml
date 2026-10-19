@@ -1,0 +1,206 @@
+# backend/tests/assistant/eval_questions.yaml
+# --------------------------------------------
+# Authoritative evaluation set for the AI Assistant (§1246, §1258).
+# 26 questions covering numeric overview, category comparison, trends, breakdowns,
+# anomalies, data quality, metric definitions, and unsupported queries.
+
+questions:
+  # ==========================================
+  # Group 1: Numeric Overview & Totals (T1)
+  # ==========================================
+  - id: eval_01
+    group: numeric_overview
+    question: "What is the total number of complaints recorded in the dataset?"
+    expected_status: answered
+    expected_tool: get_dataset_overview
+    expected_numbers: [62516]
+
+  - id: eval_02
+    group: numeric_overview
+    question: "How many cases are currently in progress and have pending outcomes?"
+    expected_status: answered
+    expected_tool: get_dataset_overview
+    expected_numbers: [1494]
+
+  - id: eval_03
+    group: numeric_overview
+    question: "What is the primary timely response rate and what is its denominator?"
+    expected_status: answered
+    expected_tool: get_dataset_overview
+    expected_numbers: [96.06, 61022]
+
+  - id: eval_04
+    group: numeric_overview
+    question: "How many complaints had a timely response marked as Yes?"
+    expected_status: answered
+    expected_tool: get_dataset_overview
+    expected_numbers: [58619]
+
+  - id: eval_05
+    group: numeric_overview
+    question: "How many complaints had a timely response marked as No?"
+    expected_status: answered
+    expected_tool: get_dataset_overview
+    expected_numbers: [2403]
+
+  # ==========================================
+  # Group 2: Category Comparisons (T2)
+  # ==========================================
+  - id: eval_06
+    group: category_comparison
+    question: "Which product category has the highest complaint volume?"
+    expected_status: answered
+    expected_tool: compare_categories
+    expected_numbers: [24814, 39.69]
+
+  - id: eval_07
+    group: category_comparison
+    question: "How many complaints were filed under Payments and what is its share?"
+    expected_status: answered
+    expected_tool: compare_categories
+    expected_numbers: [19650, 31.43]
+
+  - id: eval_08
+    group: category_comparison
+    question: "Compare complaint volume across all 5 financial product categories."
+    expected_status: answered
+    expected_tool: compare_categories
+    expected_numbers: [24814, 19650, 7710, 7606, 2736]
+
+  - id: eval_09
+    group: category_comparison
+    question: "What is the timely response rate for Deposit Accounts under Banking?"
+    expected_status: answered
+    expected_tool: compare_categories
+    expected_numbers: [24814, 96.4]
+
+  - id: eval_10
+    group: category_comparison
+    question: "How many complaints were recorded in Collections?"
+    expected_status: answered
+    expected_tool: compare_categories
+    expected_numbers: [2736, 4.38]
+
+  - id: eval_11
+    group: category_comparison
+    question: "What is the timely response rate for Real Estate Lending under Lending?"
+    expected_status: answered
+    expected_tool: compare_categories
+    expected_numbers: [6601, 99.8]
+
+  # ==========================================
+  # Group 3: Trends & Time Series (T3)
+  # ==========================================
+  - id: eval_12
+    group: trends
+    question: "How did annual complaint volume trend from 2018 to 2022?"
+    expected_status: answered
+    expected_tool: get_trend
+    expected_numbers: [7872, 7075, 8942, 11149, 12953]
+
+  - id: eval_13
+    group: trends
+    question: "What was the year-over-year change in complaints from 2019 to 2020?"
+    expected_status: answered
+    expected_tool: get_trend
+    expected_numbers: [26.39]
+
+  - id: eval_14
+    group: trends
+    question: "What was the year-over-year growth in complaints between 2020 and 2021?"
+    expected_status: answered
+    expected_tool: get_trend
+    expected_numbers: [24.68]
+
+  - id: eval_15
+    group: trends
+    question: "Why is 2017 considered a partial year in the dataset?"
+    expected_status: answered
+    expected_tool: get_trend
+    expected_numbers: [5394, 2017]
+
+  - id: eval_16
+    group: trends
+    question: "How many complaints were recorded in the partial year of 2023?"
+    expected_status: answered
+    expected_tool: get_trend
+    expected_numbers: [9131, 2023]
+
+  # ==========================================
+  # Group 4: Quality & Anomalies (T6, T7)
+  # ==========================================
+  - id: eval_17
+    group: quality_and_anomalies
+    question: "What is the overall composite data quality score from the pipeline?"
+    expected_status: answered
+    expected_tool: get_quality_summary
+    expected_numbers: [98.7]
+
+  - id: eval_18
+    group: quality_and_anomalies
+    question: "How many records did Isolation Forest flag as statistically unusual anomalies?"
+    expected_status: answered
+    expected_tool: get_quality_summary
+    expected_numbers: [3120, 4.99]
+
+  - id: eval_19
+    group: quality_and_anomalies
+    question: "Can you list some flagged anomaly records and explain what they represent?"
+    expected_status: answered
+    expected_tool: list_anomalies
+    expected_numbers: [3126]
+
+  # ==========================================
+  # Group 5: Metric Explanations (T8)
+  # ==========================================
+  - id: eval_20
+    group: metric_explanations
+    question: "How is the primary timely response rate (M-03) defined?"
+    expected_status: answered
+    expected_tool: explain_metric
+    expected_numbers: [61022]
+
+  - id: eval_21
+    group: metric_explanations
+    question: "Explain the difference between timely response rate M-03 and legacy rate M-04."
+    expected_status: answered
+    expected_tool: explain_metric
+    expected_numbers: [62516, 61022]
+
+  - id: eval_22
+    group: metric_explanations
+    question: "What does metric M-09 (days submitted to received) measure?"
+    expected_status: answered
+    expected_tool: explain_metric
+    expected_numbers: []
+
+  # ==========================================
+  # Group 6: Unsupported Inquiries
+  # ==========================================
+  - id: eval_23
+    group: unsupported
+    question: "Which specific company received the highest number of complaints?"
+    expected_status: unsupported
+    expected_tool: null
+    expected_numbers: []
+
+  - id: eval_24
+    group: unsupported
+    question: "Why did consumers file more complaints about mortgage interest rates in 2021?"
+    expected_status: unsupported
+    expected_tool: null
+    expected_numbers: []
+
+  - id: eval_25
+    group: unsupported
+    question: "Can you predict how many complaints will be filed in 2025 and 2026?"
+    expected_status: unsupported
+    expected_tool: null
+    expected_numbers: []
+
+  - id: eval_26
+    group: unsupported
+    question: "Can I sue my lender based on this data? Provide legal advice."
+    expected_status: unsupported
+    expected_tool: null
+    expected_numbers: []
