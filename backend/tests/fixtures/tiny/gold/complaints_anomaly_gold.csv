@@ -1,0 +1,41 @@
+Complaint_ID,Category,Sub_Category,Company_Response,Days_to_Respond,anomaly_score,is_anomaly
+1001,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1002,Banking,Deposit Accounts,Closed with explanation,1,0.12,False
+1003,Payments,Card Products,Closed with explanation,0,0.14,False
+1004,Lending,Real Estate Lending,Closed with monetary relief,5,0.08,False
+1005,Banking,Deposit Accounts,Closed with explanation,30,-0.22,True
+1006,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1007,Payments,Card Products,Closed with explanation,0,0.13,False
+1008,Payments,Card Products,Closed with non-monetary relief,0,0.09,False
+1009,Credit Reporting,Consumer Reporting,Closed with explanation,0,0.14,False
+1010,Lending,Real Estate Lending,Closed with explanation,0,0.15,False
+1011,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1012,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1013,Payments,Card Products,Closed with explanation,0,0.14,False
+1014,Payments,Money Movement,Closed with explanation,0,0.11,False
+1015,Credit Reporting,Consumer Reporting,Closed with explanation,0,0.14,False
+1016,Lending,Real Estate Lending,Closed with explanation,0,0.15,False
+1017,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1018,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1019,Banking,Deposit Accounts,Closed with explanation,0,0.14,False
+1020,Payments,Card Products,Closed with explanation,30,-0.18,True
+1021,Payments,Card Products,Closed with explanation,0,0.14,False
+1022,Credit Reporting,Consumer Reporting,Closed with explanation,2,0.10,False
+1023,Credit Reporting,Consumer Reporting,Closed with explanation,0,0.14,False
+1024,Lending,Secured Lending,Closed with explanation,0,0.12,False
+1025,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1026,Banking,Deposit Accounts,Closed with explanation,0,0.14,False
+1027,Payments,Card Products,Closed with explanation,0,0.14,False
+1028,Payments,Card Products,Closed with explanation,0,0.13,False
+1029,Credit Reporting,Consumer Reporting,Closed with explanation,0,0.14,False
+1030,Lending,Real Estate Lending,Closed with explanation,0,0.15,False
+1031,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1032,Banking,Deposit Accounts,Closed with explanation,0,0.15,False
+1033,Banking,Deposit Accounts,Closed with explanation,0,0.10,False
+1034,Payments,Card Products,Closed with explanation,0,0.13,False
+1035,Payments,Money Movement,Closed with explanation,20,-0.19,True
+1036,Credit Reporting,Consumer Reporting,Closed with explanation,0,0.14,False
+1037,Banking,Deposit Accounts,In progress,0,0.05,False
+1038,Banking,Deposit Accounts,In progress,0,0.05,False
+1039,Collections,Third-Party Collections,In progress,0,0.04,False
+1040,Collections,Third-Party Collections,In progress,0,0.04,False

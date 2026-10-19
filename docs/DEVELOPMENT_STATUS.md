@@ -1,7 +1,7 @@
 # Development Status
 
 **Project:** AI-Augmented Medallion Pipeline for Financial Complaint Analytics  
-**Last updated:** 2026-10-19T10:00:00Z by Autonomous Coding Agent  
+**Last updated:** 2026-10-19T11:05:00Z by Autonomous Coding Agent  
 
 ---
 
@@ -10,17 +10,17 @@
 - **Default branch:** `main` | **Current branch:** `main` | **Remote:** `https://github.com/HariomPCode/Medallion-Architecture.git`
 - **Tooling:** Python 3.12.2 (64-bit) | Node.js v24.14.1 | npm 10.8.2 | Git 2.45.2.windows.1 | GitHub CLI: not installed
 - **OS / Shell:** Windows 11 / PowerShell
-- **Azure access:** Unconfigured locally (Phase 1 requires offline local verification only)
+- **Azure access:** Unconfigured locally (`BLOCKED_EXTERNAL: azure-live-verification`)
 - **LLM access:** Unconfigured locally (offline fake/degraded mode planned for Phase 5)
 
 ---
 
 ## Current Position
 
-- **Phase:** Phase 1 — Repository Bootstrap, Baseline Verification and Decisions
-- **Day:** 2 of 2
+- **Phase:** Phase 2 — Backend Foundation, Data Access and Fixtures
+- **Day:** 5 of 5
 - **Status:** `READY_FOR_REVIEW`
-- **Next action:** Awaiting user approval of Phase 1 audit deliverables and confirmation before initiating Phase 2 (Backend Foundation).
+- **Next action:** Awaiting user review and authorization to proceed to Phase 3 (Core Analytics APIs).
 
 ---
 
@@ -28,9 +28,9 @@
 
 | Phase | Description | Status | Branch | Final Commit | Push Verified | Tests (Last Run) | Notes |
 | :---: | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| **1** | Repository Bootstrap & Baseline Audit | `READY_FOR_REVIEW` | `main` | `4da6c3e` | Pending push verification | `python scripts/audit_baseline.py` (ALL PASS) | Golden numbers match Appendix B 100% |
-| **2** | Backend Foundation, Data Access & Fixtures | `NOT_STARTED` | — | — | — | — | Next authorized phase |
-| **3** | Core Analytics Endpoints | `NOT_STARTED` | — | — | — | — | Blocked by Phase 2 |
+| **1** | Repository Bootstrap & Baseline Audit | `COMPLETED` | `main` | `9f769e2` | `Verified` | `python scripts/audit_baseline.py` (ALL PASS) | Golden numbers match Appendix B 100% |
+| **2** | Backend Foundation, Data Access & Fixtures | `READY_FOR_REVIEW` | `main` | `607bc94` | `Pending push` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
+| **3** | Core Analytics Endpoints | `NOT_STARTED` | — | — | — | — | Next authorized phase |
 | **4** | Complaint Explorer, Export & Data Quality APIs | `NOT_STARTED` | — | — | — | — | Blocked by Phase 3 |
 | **5** | Grounded AI Assistant (Backend) | `NOT_STARTED` | — | — | — | — | Blocked by Phase 4 |
 | **6** | Backend Hardening & API Freeze | `NOT_STARTED` | — | — | — | — | Blocked by Phase 5 |
@@ -44,50 +44,36 @@
 
 ## Today's Log
 
-### 2026-10-19 — Phase 1, Days 1–2 (Repository Bootstrap & Baseline Verification)
+### 2026-10-19 — Phase 2, Days 1–5 (Backend Foundation, Data Access and Fixtures)
 
 - **Completed:**
-  - Full audit of git state, branches, and remote configuration (`origin` = `https://github.com/HariomPCode/Medallion-Architecture.git`).
-  - Catalogued and calculated SHA-256 cryptographic fingerprints for all 8 existing repository files.
-  - Verified PBIX archive structure (`Finance-Gold.pbix`: 1 page, 6 visuals, Fluent2 theme, compressed DataModel).
-  - Executed regex-based secret scan across the entire working tree; confirmed zero leaked credentials, keys, or tokens.
-  - Authored `scripts/audit_baseline.py` to independently compute and validate all analytical baseline metrics.
-  - Successfully verified all golden values against `docs/FINANCE_COMPLAINTS_DEVELOPMENT_PLAN.md` (Appendix B): 62,516 rows, 0 duplicate IDs, 5 categories, 9 sub-categories, timely response rates (M-03 = 96.06%, M-04 = 93.77%), CFPB routing lag statistics, and yearly volume.
-  - Authored `.gitignore` covering Python, Node, caches, local snapshot data, and environment files.
-  - Authored `.env.example` with safe variable placeholders and security documentation.
-  - Authored `docs/BASELINE_AUDIT.md` documenting verified metrics, formulas, dataset limitations, and semantic rules.
-  - Authored `docs/DECISIONS.md` formalizing architectural decisions (D-01 to D-16) and open questions.
-- **Pending:**
-  - User review of Phase 1 audit and deliverables.
-  - User confirmation on Git commit and push to remote.
-- **Blocked:** None.
+  - Day 1: Created `backend/` skeleton with `requirements.txt`, `requirements-dev.txt`, and `pyproject.toml`. Scaffolding includes `core/config.py` (Settings with production validators), `core/logging.py` (JSON/console formatters, request ID middleware, secret redaction filter), `core/errors.py` (standardized error envelope, sanitized exception handlers), `api/health.py` (`/health/live`), `main.py` app factory, and CI workflow `.github/workflows/backend-ci.yml`.
+  - Day 2: Built `data/contracts.py` (schemas for all Silver and Gold Medallion objects) and `data/loader.py` (CSV parser with UTF-8 BOM stripping, allowed null token normalization, deduplication by `Complaint_ID`, date validation, routing lag calculation, product lookup join, and timely response normalization).
+  - Day 3: Implemented `backend/scripts/build_local_snapshot.py` reproducing the full 62,516-record Silver and Gold pipeline in pandas offline. Authored hand-verified ~40-row test dataset in `tests/fixtures/tiny/` with manual truth table `EXPECTED.md`. Implemented `backend/scripts/reconcile_with_gold.py` confirming 100% exact match across all 9 category rows and 35 trend rows against README/Appendix B targets.
+  - Day 4: Implemented `data/sources.py` (`DataSource` protocol, `LocalSource`, `AzureBlobSource`) and `data/snapshot.py` (`SnapshotManager` with in-memory caching, atomic swap, and last-known-good refresh failure semantics). Added `/health/ready` probe.
+  - Day 5: Created mock unit test suite for `AzureBlobSource` covering 200, 404, 403, timeouts, and oversize blob rejection. Added `backend/scripts/check_azure_access.py` probe. Created `backend/README.md` and expanded `docs/ARCHITECTURE.md`. Executed full test and quality checks (`pytest`, `ruff`, `mypy`).
 - **Tests executed:**
-  - `python scripts/audit_baseline.py` → PASSED (0 discrepancies, exit code 0)
-  - `git check-ignore -v backend/.local_data/x .env node_modules/x .venv/x` → PASSED (all patterns matched)
-  - Secret scan: 0 exposed credentials detected.
+  - `pytest --cov=app --cov-report=term-missing` → 32 passed, 1 skipped (opt-in live Azure test).
+  - `ruff check .` → All checks passed (0 errors).
+  - `ruff format --check .` → 27 files verified formatted.
+  - `mypy app` → Success (no issues found in 13 source files).
+  - `python scripts/audit_baseline.py` → 100% baseline metrics verified.
+  - `python scripts/reconcile_with_gold.py` → 100% Gold tables matched.
 - **Files created:**
-  - `scripts/audit_baseline.py`
-  - `.gitignore`
-  - `.env.example`
-  - `docs/BASELINE_AUDIT.md`
-  - `docs/DECISIONS.md`
-  - `docs/DEVELOPMENT_STATUS.md`
+  - `backend/requirements.txt`, `backend/requirements-dev.txt`, `backend/pyproject.toml`, `backend/.env.example`
+  - `backend/app/main.py`, `backend/app/core/config.py`, `backend/app/core/logging.py`, `backend/app/core/errors.py`
+  - `backend/app/data/contracts.py`, `backend/app/data/loader.py`, `backend/app/data/sources.py`, `backend/app/data/snapshot.py`
+  - `backend/app/api/health.py`
+  - `backend/scripts/build_local_snapshot.py`, `backend/scripts/reconcile_with_gold.py`, `backend/scripts/check_azure_access.py`
+  - `backend/tests/fixtures/tiny/**`, `backend/tests/fixtures/tiny/EXPECTED.md`
+  - `backend/tests/unit/test_config.py`, `backend/tests/unit/test_errors.py`, `backend/tests/unit/test_loader.py`, `backend/tests/unit/test_snapshot.py`, `backend/tests/unit/test_azure_source.py`
+  - `backend/tests/api/test_health.py`
+  - `backend/README.md`, `docs/ARCHITECTURE.md`, `.github/workflows/backend-ci.yml`
 - **Files preserved untouched:**
-  - `ConsumerComplaints_DataDictionary.csv` (SHA-256: `0EF1998EEC0AFAC14106D8CE26EFBCDF20C769178222C9E5BF7B2E2DAC0DEE2A`)
-  - `Consumer_Complaints_AI.csv` (SHA-256: `FFFD98C052DDEDCCA433AE383908FBDB9A3A950A53E90F2CBC703A2250245F49`)
-  - `Finance Complaints ADLS Setup.ipynb` (SHA-256: `7FEF45D9F009703A7BAFF1F2B4CC447FFE998B9DEA2E5FAF2024F84CFCA5D7F9`)
-  - `Finance-Gold.pbix` (SHA-256: `208B4F9FFB14CE5A20B525AE049343CCA7AE235B830ACEE2BE7CE6F71191DEF6`)
-  - `Finance_Complaints_DataQuality_MLModel.ipynb` (SHA-256: `5362B90860321D429C87187765A0243B7F31F87881F5480065AA3041B5DEDC12`)
-  - `Product_Category_Reference.csv` (SHA-256: `A18E93ABE3F343E6C501396E57738190975F184A30718E4051248C40B21E432F`)
-  - `README.md` (SHA-256: `CCFC1A444B427B76D6349B75D7AB11B57D020CCC688AC9B115AE013CB1861C9E`)
-  - `docs/FINANCE_COMPLAINTS_DEVELOPMENT_PLAN.md` (SHA-256: `936DAB381DA72542F3BE7617178A209F8F194E92FCF90FB4BB5D2E025C5564A7`)
-- **Evidence:**
-  - Total records: 62,516; distinct IDs: 62,516 (0 duplicates).
-  - Timely response: Yes=58,619, No=2,403, Blank=1,494.
-  - Primary rate M-03 = 96.06% (58,619 / 61,022). Legacy rate M-04 = 93.77% (58,619 / 62,516).
-  - In progress cases: 1,494, all with null timeliness, dates 2023-05-12 to 2023-08-28.
-  - Routing delay: 0 negative lags, 49,634 zero-day routing (79.4%), mean 1.22 days, max 275 days.
-  - Categories: Banking (24,814), Payments (19,650), Credit Reporting (7,710), Lending (7,606), Collections (2,736).
+  - All 8 baseline files (`Consumer_Complaints_AI.csv`, `Product_Category_Reference.csv`, `ConsumerComplaints_DataDictionary.csv`, notebooks, PBIX, README) verified unchanged.
+
+### 2026-10-19 — Phase 1, Days 1–2 (Repository Bootstrap & Baseline Verification)
+- Completed baseline audit, SHA-256 fingerprinting, git checks, decisions register, and `.gitignore`. Commit `9f769e2`.
 
 ---
 
@@ -105,7 +91,9 @@
 
 ## External Blockers
 
-None. Phase 1 runs completely offline and requires no external cloud resources.
+| ID | What | Manual Steps for Human | Phase Affected |
+| :--- | :--- | :--- | :--- |
+| `BLOCKED_EXTERNAL: azure-live-verification` | Live ADLS Gen2 storage container verification requires Azure subscription credentials. | 1. Run `az login`<br>2. Grant `Storage Blob Data Reader` role to user/principal on `financecomplaintssa`<br>3. Run `python backend/scripts/check_azure_access.py` | Phase 2 (Completed offline with mocks and local snapshot) |
 
 ---
 

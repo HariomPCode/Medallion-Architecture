@@ -1,0 +1,41 @@
+Complaint_ID,Submitted_Via,Date_submitted,Date_received,State,Product,Sub_Product,Issue,Sub_Issue,Company_Public_Response,Company_Response,Timely_Response
+1001,Web,2017-06-01,2017-06-01,CA,Checking or savings account,Checking,Managing an account,Deposits and withdrawals,Company has responded to the consumer,Closed with explanation,Yes
+1002,Phone,2017-07-15,2017-07-16,NY,Checking or savings account,Savings,Problem with a lender or other company,None,None,Closed with explanation,Yes
+1003,Web,2017-08-20,2017-08-20,TX,Credit card or prepaid card,General-purpose credit card,Billing problem,None,None,Closed with explanation,Yes
+1004,Postal mail,2017-09-10,2017-09-15,FL,Mortgage,Conventional home mortgage,Applying for a mortgage,None,None,Closed with monetary relief,Yes
+1005,Web,2018-01-10,2018-02-09,CA,Checking or savings account,Checking,Managing an account,None,None,Closed with explanation,No
+1006,Web,2018-03-12,2018-03-12,FL,Checking or savings account,Checking,Fee problem,Overdraft,None,Closed with explanation,Yes
+1007,Phone,2018-05-14,2018-05-14,NY,Credit card or prepaid card,Store credit card,Other features,None,None,Closed with explanation,Yes
+1008,Web,2018-07-22,2018-07-22,IL,Credit card or prepaid card,General-purpose credit card,Closing an account,None,None,Closed with non-monetary relief,Yes
+1009,Web,2018-09-05,2018-09-05,GA,"Credit reporting, credit repair services, or other personal consumer reports",Credit reporting,Incorrect information on your report,Personal information,None,Closed with explanation,Yes
+1010,Postal mail,2018-11-18,2018-11-18,TX,Mortgage,FHA mortgage,Trouble during payment process,None,None,Closed with explanation,Yes
+1011,Web,2019-02-01,2019-02-01,CA,Checking or savings account,Checking,Problem caused by company's investigation,None,None,Closed with explanation,Yes
+1012,Web,2019-04-15,2019-04-15,TX,Checking or savings account,Checking,Managing an account,None,None,Closed with explanation,Yes
+1013,Phone,2019-06-20,2019-06-20,FL,Credit card or prepaid card,General-purpose credit card,Fees or interest,None,None,Closed with explanation,Yes
+1014,Web,2019-08-10,2019-08-10,NY,"Money transfer, virtual currency, or money service",Domestic mobile transfer,Fraud or scam,None,None,Closed with explanation,Yes
+1015,Web,2019-10-05,2019-10-05,OH,"Credit reporting, credit repair services, or other personal consumer reports",Credit reporting,Problem with a credit reporting company's investigation,None,None,Closed with explanation,Yes
+1016,Web,2019-12-12,2019-12-12,NC,Mortgage,VA mortgage,Trouble during payment process,None,None,Closed with explanation,Yes
+1017,Web,2020-01-15,2020-01-15,CA,Checking or savings account,Checking,Managing an account,None,None,Closed with explanation,Yes
+1018,Web,2020-03-20,2020-03-20,TX,Checking or savings account,Savings,Opening an account,None,None,Closed with explanation,Yes
+1019,Phone,2020-05-10,2020-05-10,FL,Checking or savings account,Checking,Fee problem,None,None,Closed with explanation,Yes
+1020,Web,2020-06-15,2020-07-15,CA,Credit card or prepaid card,General-purpose credit card,Problem when making payments,None,None,Closed with explanation,No
+1021,Web,2020-07-20,2020-07-20,NY,Credit card or prepaid card,General-purpose credit card,Closing an account,None,None,Closed with explanation,Yes
+1022,Postal mail,2020-09-15,2020-09-17,PA,"Credit reporting, credit repair services, or other personal consumer reports",Credit reporting,Incorrect information on your report,None,None,Closed with explanation,Yes
+1023,Web,2020-10-10,2020-10-10,GA,"Credit reporting, credit repair services, or other personal consumer reports",Credit reporting,Improper use of your report,None,None,Closed with explanation,Yes
+1024,Web,2020-11-25,2020-11-25,NJ,Vehicle loan or lease,Loan,Managing the loan or lease,None,None,Closed with explanation,Yes
+1025,Web,2021-01-10,2021-01-10,CA,Checking or savings account,Checking,Managing an account,None,None,Closed with explanation,Yes
+1026,Phone,2021-03-15,2021-03-15,FL,Checking or savings account,Checking,Managing an account,None,None,Closed with explanation,Yes
+1027,Web,2021-05-20,2021-05-20,TX,Credit card or prepaid card,General-purpose credit card,Problem when making payments,None,None,Closed with explanation,Yes
+1028,Web,2021-07-14,2021-07-14,NY,Credit card or prepaid card,Store credit card,Fees or interest,None,None,Closed with explanation,Yes
+1029,Web,2021-09-18,2021-09-18,IL,"Credit reporting, credit repair services, or other personal consumer reports",Credit reporting,Incorrect information on your report,None,None,Closed with explanation,Yes
+1030,Web,2021-11-30,2021-11-30,CA,Mortgage,Conventional home mortgage,Struggling to pay mortgage,None,None,Closed with explanation,Yes
+1031,Web,2022-01-20,2022-01-20,CA,Checking or savings account,Checking,Managing an account,None,None,Closed with explanation,Yes
+1032,Web,2022-03-10,2022-03-10,NY,Checking or savings account,Checking,Opening an account,None,None,Closed with explanation,Yes
+1033,Web,2022-05-15,2022-05-15,TX,Checking or savings account,Checking,Fee problem,None,None,Closed with explanation,No
+1034,Phone,2022-07-22,2022-07-22,FL,Credit card or prepaid card,General-purpose credit card,Advertising or marketing,None,None,Closed with explanation,Yes
+1035,Postal mail,2022-09-10,2022-09-30,CA,"Money transfer, virtual currency, or money service",International money transfer,Money was not available when promised,None,None,Closed with explanation,No
+1036,Web,2022-11-15,2022-11-15,GA,"Credit reporting, credit repair services, or other personal consumer reports",Credit reporting,Improper use of your report,None,None,Closed with explanation,Yes
+1037,Web,2023-05-15,2023-05-15,CA,Checking or savings account,Checking,Managing an account,None,None,In progress,
+1038,Web,2023-06-10,2023-06-10,TX,Checking or savings account,Checking,Fee problem,None,None,In progress,
+1039,Web,2023-07-01,2023-07-01,FL,Debt collection,Credit card debt,Attempts to collect debt not owed,None,None,In progress,
+1040,Phone,2023-08-15,2023-08-15,NY,Debt collection,Other debt,Written notification about debt,None,None,In progress,
