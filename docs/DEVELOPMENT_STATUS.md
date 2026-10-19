@@ -32,7 +32,7 @@
 | **2** | Backend Foundation, Data Access & Fixtures | `COMPLETED` | `main` | `1276f9f` | `Verified` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
 | **3** | Core Analytics Endpoints | `COMPLETED` | `main` | `dc58b09` | `Verified` | `74 passed, 1 skipped` (92% backend coverage) | All M-01 to M-15 implemented; golden values match 100% |
 | **4** | Complaint Explorer, Export & Data Quality APIs | `COMPLETED` | `main` | `bfef48c` | `Verified` | `100 passed, 1 skipped` (93% backend coverage) | Endpoints 9–13, pipeline patch documented (PENDING_HUMAN) |
-| **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `pending` | `Pending Push` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
+| **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `84bb504` | `Verified` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
 | **6** | Backend Hardening & API Freeze | `NOT_STARTED` | — | — | — | — | Blocked by Phase 5 gate |
 | **7** | Frontend Foundation & Shell | `NOT_STARTED` | — | — | — | — | Blocked by Phase 6 |
 | **8** | Overview Dashboard & Category Analytics UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 7 |
