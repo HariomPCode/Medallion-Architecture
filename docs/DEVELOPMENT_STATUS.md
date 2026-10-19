@@ -33,7 +33,7 @@
 | **3** | Core Analytics Endpoints | `COMPLETED` | `main` | `dc58b09` | `Verified` | `74 passed, 1 skipped` (92% backend coverage) | All M-01 to M-15 implemented; golden values match 100% |
 | **4** | Complaint Explorer, Export & Data Quality APIs | `COMPLETED` | `main` | `bfef48c` | `Verified` | `100 passed, 1 skipped` (93% backend coverage) | Endpoints 9–13, pipeline patch documented (PENDING_HUMAN) |
 | **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `84bb504` | `Verified` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
-| **6** | Backend Hardening & API Freeze | `COMPLETED` | `main` | `dbe3b9c` | `Verified` | `165 passed` (89% coverage; load 20x200 0% 5xx; 100 filter consistency pass; secrets 0; contract 100% match) | All AC-6.1 to AC-6.7 pass; contract frozen in `docs/openapi.json`; tag `api-v1.0-frozen` proposed |
+| **6** | Backend Hardening & API Freeze | `COMPLETED` | `main` | `d192d10` | `Verified` | `165 passed` (89% coverage; load 20x200 0% 5xx; 100 filter consistency pass; secrets 0; contract 100% match) | All AC-6.1 to AC-6.7 pass; contract frozen in `docs/openapi.json`; tag `api-v1.0-frozen` proposed |
 | **7** | Frontend Foundation & Shell | `NOT_STARTED` | — | — | — | — | Blocked by Phase 6 exit gate approval |
 | **8** | Overview Dashboard & Category Analytics UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 7 |
 | **9** | Complaint Explorer & Data Quality Center UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 8 |
