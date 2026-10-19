@@ -71,7 +71,7 @@ class ValidationException(AppError):
         super().__init__(
             message=message,
             code="VALIDATION_ERROR",
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=422,
             details=details,
         )
 
@@ -98,6 +98,9 @@ class NotFoundError(AppError):
             status_code=status.HTTP_404_NOT_FOUND,
             details=details,
         )
+
+
+NotFoundException = NotFoundError
 
 
 async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:

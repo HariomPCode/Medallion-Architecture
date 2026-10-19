@@ -90,4 +90,12 @@ def reconcile(snapshot_dir: str = ".local_data") -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(reconcile())
+    if len(sys.argv) > 1:
+        target_dir = sys.argv[1]
+    elif os.path.exists(".local_data"):
+        target_dir = ".local_data"
+    elif os.path.exists("backend/.local_data"):
+        target_dir = "backend/.local_data"
+    else:
+        target_dir = ".local_data"
+    sys.exit(reconcile(target_dir))

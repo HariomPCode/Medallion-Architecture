@@ -193,7 +193,12 @@ def test_cross_endpoint_consistency_property_test(local_snapshot_client: TestCli
         assert resp_brk.status_code == 200, f"Breakdown failed on params {params}"
         brk_total = sum(item["total"] for item in resp_brk.json()["items"])
 
-        # Cross-check mutual equality
+        # 5. Fetch Complaints Explorer
+        resp_comp = local_snapshot_client.get("/api/v1/complaints", params=params)
+        assert resp_comp.status_code == 200, f"Complaints failed on params {params}"
+        comp_total = resp_comp.json()["total"]
+
+        # Cross-check mutual equality (AC-4.3)
         assert sum_total == cat_total, (
             f"Mismatch summary ({sum_total}) vs category ({cat_total}) on {params}"
         )
@@ -203,3 +208,47 @@ def test_cross_endpoint_consistency_property_test(local_snapshot_client: TestCli
         assert sum_total == brk_total, (
             f"Mismatch summary ({sum_total}) vs breakdown ({brk_total}) on {params}"
         )
+        assert sum_total == comp_total, (
+            f"Mismatch summary ({sum_total}) vs complaints ({comp_total}) on {params}"
+        )
+
+
+def test_data_quality_summary_matches_gold_report(local_snapshot_client: TestClient) -> None:
+    """AC-4.4: Quality summary values equal the DQ report CSV; in_progress_share_pct computed (≈ 47.79%)."""
+    resp = local_snapshot_client.get("/api/v1/quality/summary")
+    assert resp.status_code == 200
+    data = resp.json()
+
+    assert data["total_records"] == 62516
+    assert data["overall_quality_score"] == 98.7
+    assert data["status"] == "HIGH QUALITY"
+
+    # Dimensions
+    dim_map = {d["id"]: d["value"] for d in data["dimensions"]}
+    assert dim_map["completeness"] == 99.6
+    assert dim_map["validity"] == 98.8
+    assert dim_map["uniqueness"] == 100.0
+    assert dim_map["consistency"] == 100.0
+    assert dim_map["ml_normality"] == 95.0
+
+    # Anomalies block
+    anom = data["anomalies"]
+    assert anom["flagged"] == 3126
+    assert anom["rate_pct"] == 5.0
+    # Exactly 1,494 of 3,126 = 47.79%
+    assert anom["in_progress_share_pct"] == pytest.approx(47.79, abs=0.01)
+
+    # Model metadata
+    assert data["model"]["type"] == "IsolationForest"
+    assert data["model"]["contamination"] == 0.05
+    assert data["model"]["n_estimators"] == 200
+
+
+def test_complaints_export_reconciliation_on_local_snapshot(
+    local_snapshot_client: TestClient,
+) -> None:
+    """Export on full local snapshot caps at EXPORT_MAX_ROWS (10,000) and marks X-Export-Truncated."""
+    resp = local_snapshot_client.get("/api/v1/complaints/export")
+    assert resp.status_code == 200
+    assert resp.headers["X-Export-Truncated"] == "true"
+    assert resp.headers["X-Export-Row-Count"] == "10000"

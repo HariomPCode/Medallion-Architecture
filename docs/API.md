@@ -1,7 +1,7 @@
 # Backend API Specification
 
 **Document:** `docs/API.md`  
-**Phase:** Phase 3 — Core Analytics APIs (Draft Contract)  
+**Phase:** Phase 4 — Complaint Explorer, Export & Data Quality APIs  
 **Base URL:** `/api/v1`  
 **Schema Definition:** [`docs/openapi.json`](file:///D:/Documents/New%20folder/Finance-Complaints-Medallion-main/docs/openapi.json)  
 
@@ -194,3 +194,205 @@ Unrecognized query parameters return `422 VALIDATION_ERROR` (`extra="forbid"`).
   - Common query filters.
 - **Response Schema:** `BreakdownResponse`
 - **Business Rule:** Sum of items (including `Other`) exactly equals `total`.
+
+#### `GET /api/v1/analytics/kpis`
+- **Purpose:** Summary KPI card payload combining complaint volume, primary and legacy timely resolution rates, routing delay, and coverage dates.
+- **Parameters:** Common query filters.
+- **Response Schema:** `KPISummaryResponse`
+
+---
+
+### 2.4 Complaint Explorer & Export Endpoints
+
+#### `GET /api/v1/complaints`
+- **Purpose:** Paginated, filtered, and deterministically sorted complaint browsing (§13.2 #9).
+- **Parameters:**
+  - `q`: Search query matching exact `Complaint_ID` (digits only, $\le 12$ characters).
+  - `sort` / `sort_by`: `date_submitted` (default), `complaint_id`, `category`, `sub_category`, `submitted_via`, `state`, `company_response`.
+  - `order` / `sort_dir`: `desc` (default) or `asc`. Secondary tie-break strictly on `Complaint_ID` descending.
+  - `page`: Page number (integer $\ge 1$, default 1).
+  - `page_size`: Records per page (integer between 1 and 100, default 25).
+  - Common query filters.
+- **Response Schema:** `ComplaintListResponse`
+```json
+{
+  "items": [
+    {
+      "complaint_id": 4848023,
+      "date_submitted": "2021-10-24",
+      "category": "Lending",
+      "sub_category": "Real Estate Lending",
+      "product": "Mortgage",
+      "issue": "Applying for a mortgage or refinancing an existing mortgage",
+      "submitted_via": "Referral",
+      "state": "NY",
+      "company_response": "Closed with explanation",
+      "timely_response": "yes",
+      "is_anomaly": false
+    }
+  ],
+  "page": 1,
+  "page_size": 25,
+  "total": 62516,
+  "total_pages": 2501
+}
+```
+
+#### `GET /api/v1/complaints/{complaint_id}`
+- **Purpose:** Full detail record for a single complaint (§13.2 #10).
+- **Parameters:**
+  - `complaint_id`: Positive integer CFPB identifier in URL path.
+- **Response Schema:** `ComplaintDetailResponse`
+- **Error Cases:** HTTP 404 `NOT_FOUND` if ID does not exist; HTTP 422 if non-numeric.
+
+#### `GET /api/v1/complaints/export`
+- **Purpose:** Capped streaming CSV export of filtered complaints (§13.2 #11).
+- **Parameters:** Same filter and sort parameters as `/api/v1/complaints`.
+- **Response:** `text/csv; charset=utf-8` stream with RFC 4180 quotation.
+- **Headers:**
+  - `Content-Disposition`: `attachment; filename="complaints_YYYYMMDD.csv"`
+  - `X-Export-Truncated`: `"true"` if total matching records exceed `EXPORT_MAX_ROWS` (default 10,000), else `"false"`.
+  - `X-Export-Row-Count`: Total exported data rows (e.g. `"10000"`).
+- **Security:** Formula-injection guard prefixes `'` to any cell starting with `=`, `+`, `-`, `@`, `\t`, or `\r`.
+
+---
+
+### 2.5 Data Quality Center Endpoints
+
+#### `GET /api/v1/quality/summary`
+- **Purpose:** Overall composite data quality score, decomposed dimensions, anomaly distributions, model metadata, and mandatory audit caveats (§13.2 #12).
+- **Parameters:** None.
+- **Response Schema:** `QualitySummaryResponse`
+```json
+{
+  "overall_quality_score": 98.7,
+  "status": "HIGH QUALITY",
+  "total_records": 62516,
+  "dimensions": [
+    {
+      "id": "completeness",
+      "label": "Completeness",
+      "value": 99.6,
+      "weight": 0.25,
+      "definition": "Proportion of non-null attributes across mandatory complaint schema fields.",
+      "note": "Lowered by 1,494 open ('In progress') cases with no timeliness value."
+    },
+    {
+      "id": "validity",
+      "label": "Validity",
+      "value": 98.8,
+      "weight": 0.20,
+      "definition": "Conformance to domain ranges, enumerated categories, and resolved response values.",
+      "note": "Timely response recorded as Yes or No for 61,022 of 62,516 complaints."
+    },
+    {
+      "id": "consistency",
+      "label": "Consistency",
+      "value": 100.0,
+      "weight": 0.20,
+      "definition": "Chronological consistency between complaint submission date and CFPB receipt date.",
+      "note": "CFPB routing logic verified: Date received >= Date submitted across all valid records."
+    },
+    {
+      "id": "uniqueness",
+      "label": "Uniqueness",
+      "value": 100.0,
+      "weight": 0.15,
+      "definition": "Distinctness of primary complaint identifiers (Complaint_ID uniqueness).",
+      "note": "Zero duplicate Complaint_IDs detected in Silver layer."
+    },
+    {
+      "id": "ml_normality",
+      "label": "ML Normality",
+      "value": 95.0,
+      "weight": 0.20,
+      "definition": "Proportion of complaints exhibiting normal multivariate behavior via Isolation Forest.",
+      "note": "Derived from Isolation Forest anomaly detection (nominal contamination=0.05)."
+    }
+  ],
+  "anomalies": {
+    "flagged": 3126,
+    "rate_pct": 5.0,
+    "in_progress_share_pct": 47.79,
+    "by_category": [
+      { "category": "Banking", "flagged": 1064, "total": 24814, "rate_pct": 4.29 },
+      { "category": "Payments", "flagged": 967, "total": 19650, "rate_pct": 4.92 }
+    ],
+    "by_company_response": [
+      { "company_response": "In progress", "flagged": 1494, "total": 1494, "rate_pct": 100.0 }
+    ]
+  },
+  "model": {
+    "available": true,
+    "type": "IsolationForest",
+    "contamination": 0.05,
+    "n_estimators": 200,
+    "features": [
+      "Days_to_Respond",
+      "is_timely",
+      "Category_code",
+      "Sub_Category_code",
+      "Submitted_Via_code",
+      "Company_Response_code"
+    ],
+    "mlflow_run_id": "local_snapshot_reproduction",
+    "source": "run_metadata"
+  },
+  "timestamps": {
+    "quality_analysis_at": "2026-10-19T10:31:18.434201+00:00",
+    "report_object_refreshed_at": "2026-10-19T11:00:00Z"
+  },
+  "limitations": [
+    "ML Normality is derived from the fixed contamination parameter (0.05) and is ~95.0% by construction, rather than an empirical distribution test.",
+    "Completeness and Validity scores are mechanically depressed by open ('In progress') complaints, which cannot have a timeliness verdict until resolved.",
+    "Isolation Forest anomaly detection uses label-encoded categorical variables and median-imputed routing delays; anomalies represent unusual feature combinations, not confirmed data errors.",
+    "Anomalies are heavily concentrated in open cases (1,494 of 1,494 in-progress complaints flagged) and cases with extended CFPB routing delays."
+  ],
+  "warnings": []
+}
+```
+
+#### `GET /api/v1/quality/anomalies`
+- **Purpose:** Paginated anomaly records joined with Silver complaints and deterministic observations (§13.2 #13).
+- **Parameters:**
+  - `only_flagged`: Boolean (default `true`). If `false`, includes unflagged complaints.
+  - `sort` / `sort_by`: `score` (default, lowest score first), `date`, `id`.
+  - `order` / `sort_dir`: `asc` (default) or `desc`.
+  - `page`: Page number ($\ge 1$, default 1).
+  - `page_size`: Records per page ($1 \le \text{page\_size} \le 100$, default 25).
+  - `category`: Repeatable filter by product category.
+  - `sub_category`: Repeatable filter by sub-category.
+  - `company_response`: Repeatable filter by company response.
+- **Response Schema:** `AnomalyListResponse`
+```json
+{
+  "items": [
+    {
+      "complaint_id": 1234567,
+      "date_submitted": "2020-01-01",
+      "category": "Credit Reporting",
+      "sub_category": "Credit reporting",
+      "product": "Credit reporting",
+      "issue": "Incorrect information on your report",
+      "submitted_via": "Web",
+      "state": "CA",
+      "company_response": "In progress",
+      "timely_response": null,
+      "days_submitted_to_received": 0,
+      "anomaly_score": -0.123456,
+      "is_anomaly": true,
+      "annotations": {
+        "open_case": true,
+        "long_routing_delay": false,
+        "timely_no": false
+      },
+      "annotations_note": "Observations, not model explanations"
+    }
+  ],
+  "page": 1,
+  "page_size": 25,
+  "total": 3126,
+  "total_pages": 126
+}
+```
+

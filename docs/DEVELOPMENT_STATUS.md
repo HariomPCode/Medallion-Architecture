@@ -17,10 +17,10 @@
 
 ## Current Position
 
-- **Phase:** Phase 3 — Core Analytics APIs
-- **Day:** 5 of 5
+- **Phase:** Phase 4 — Complaint Explorer, Export & Data Quality APIs
+- **Day:** 4 of 4
 - **Status:** `COMPLETED`
-- **Next action:** Awaiting user review and authorization to proceed to Phase 4 (Complaint Explorer & Data Quality APIs).
+- **Next action:** Awaiting user review and authorization to proceed to Phase 5 (Grounded AI Assistant Backend).
 
 ---
 
@@ -31,7 +31,7 @@
 | **1** | Repository Bootstrap & Baseline Audit | `COMPLETED` | `main` | `9f769e2` | `Verified` | `python scripts/audit_baseline.py` (ALL PASS) | Golden numbers match Appendix B 100% |
 | **2** | Backend Foundation, Data Access & Fixtures | `COMPLETED` | `main` | `1276f9f` | `Verified` | `32 passed, 1 skipped` (100% unit/API pass) | Local snapshot reconciled; live Azure blocked external |
 | **3** | Core Analytics Endpoints | `COMPLETED` | `main` | `dc58b09` | `Verified` | `74 passed, 1 skipped` (92% backend coverage) | All M-01 to M-15 implemented; golden values match 100% |
-| **4** | Complaint Explorer, Export & Data Quality APIs | `NOT_STARTED` | — | — | — | — | Blocked by Phase 3 |
+| **4** | Complaint Explorer, Export & Data Quality APIs | `COMPLETED` | `main` | Pending | Pending | `100 passed, 1 skipped` (93% backend coverage) | Endpoints 9–13, pipeline patch documented (PENDING_HUMAN) |
 | **5** | Grounded AI Assistant (Backend) | `NOT_STARTED` | — | — | — | — | Blocked by Phase 4 |
 | **6** | Backend Hardening & API Freeze | `NOT_STARTED` | — | — | — | — | Blocked by Phase 5 |
 | **7** | Frontend Foundation & Shell | `NOT_STARTED` | — | — | — | — | Blocked by Phase 6 |
@@ -43,6 +43,33 @@
 ---
 
 ## Today's Log
+
+### 2026-10-19 — Phase 4, Days 1–4 (Complaint Explorer, Export & Data Quality APIs)
+
+- **Completed:**
+  - Day 1: Created `backend/app/domain/complaints.py`, `backend/app/schemas/complaints.py`, and `backend/app/api/complaints.py` implementing `GET /api/v1/complaints` and `GET /api/v1/complaints/{id}`. Supports shared `ComplaintFilters`, pagination (`page`, `page_size` 1..100), sorting with whitelist and secondary numeric tie-break on `Complaint_ID` desc, numeric query `q` validation ($\le 12$ digits), left-joined anomaly score/flag, and whitelisted detail projection.
+  - Day 2: Implemented `GET /api/v1/complaints/export` streaming CSV (`text/csv; charset=utf-8`, attachment `complaints_YYYYMMDD.csv`). Enforces `EXPORT_MAX_ROWS` limit with `X-Export-Truncated` and `X-Export-Row-Count` headers, CSV injection formula protection (prefix `'` for `= + - @ \t \r`), and typed rate limit hook.
+  - Day 3: Created `backend/app/domain/quality.py`, `backend/app/schemas/quality.py`, and `backend/app/api/quality.py` implementing `GET /api/v1/quality/summary` and `GET /api/v1/quality/anomalies`. Decomposes the 5 quality dimensions with exact notebook weights (0.25, 0.20, 0.20, 0.15, 0.20), data-driven notes, anomaly summary block, dynamic `in_progress_share_pct` (47.79% on local snapshot: 1,494 of 3,126 anomalies), and static limitations per A-05..A-08. Implemented deterministic anomaly observations (`open_case`, `long_routing_delay` $\ge 7$ days, `timely_no`) with clear non-causal disclaimer.
+  - Day 4: Created `docs/pipeline_patches/` containing `README.md`, `dq_run_metadata_cell.py` (additive cell for Databricks execution, documented as `PENDING_HUMAN`), and `setup_catalog_fix.md`. Updated `docs/API.md` and regenerated `docs/openapi.json`. Built comprehensive unit, API, and cross-endpoint reconciliation tests.
+- **Tests executed:**
+  - `pytest --cov=app --cov-report=term-missing` → 100 passed, 1 skipped (93% backend statement coverage).
+  - `ruff check backend` → All checks passed (0 errors).
+  - `ruff format --check backend` → 59 files verified formatted.
+  - `mypy app` → Success (no issues found in 32 source files).
+  - `python scripts/audit_baseline.py` → 100% baseline metrics verified (0 discrepancies).
+  - `python backend/scripts/reconcile_with_gold.py` → 100% Gold tables matched.
+- **Files created:**
+  - `backend/app/domain/complaints.py`, `backend/app/domain/quality.py`
+  - `backend/app/schemas/complaints.py`, `backend/app/schemas/quality.py`
+  - `backend/app/api/complaints.py`, `backend/app/api/quality.py`
+  - `backend/tests/unit/test_complaints.py`, `backend/tests/unit/test_quality.py`
+  - `backend/tests/api/test_complaints.py`, `backend/tests/api/test_quality.py`
+  - `docs/pipeline_patches/README.md`, `docs/pipeline_patches/dq_run_metadata_cell.py`, `docs/pipeline_patches/setup_catalog_fix.md`
+- **Files modified:**
+  - `backend/app/core/errors.py`, `backend/app/main.py`, `backend/scripts/reconcile_with_gold.py`, `backend/tests/integration/test_reconciliation.py`
+  - `docs/API.md`, `docs/openapi.json`, `docs/DEVELOPMENT_STATUS.md`
+- **Baseline preservation:**
+  - All original CSVs, notebooks, and Power BI report preserved untouched.
 
 ### 2026-10-19 — Phase 3, Days 1–5 (Core Analytics Endpoints)
 
@@ -116,11 +143,12 @@
 
 ---
 
-## External Blockers
+## External Blockers & Pending Human Actions
 
 | ID | What | Manual Steps for Human | Phase Affected |
 | :--- | :--- | :--- | :--- |
 | `BLOCKED_EXTERNAL: azure-live-verification` | Live ADLS Gen2 storage container verification requires Azure subscription credentials. | 1. Run `az login`<br>2. Grant `Storage Blob Data Reader` role to user/principal on `financecomplaintssa`<br>3. Run `python backend/scripts/check_azure_access.py` | Phase 2 (Completed offline with mocks and local snapshot) |
+| `PENDING_HUMAN: run pipeline patch` | Databricks notebook execution of additive metadata cell to export `data_quality_run_gold.csv`. | Follow instructions in `docs/pipeline_patches/README.md` to append and run `docs/pipeline_patches/dq_run_metadata_cell.py` after Cell 14 in Databricks workspace. | Phase 4 (Backend operates gracefully in fallback mode until run) |
 
 ---
 
