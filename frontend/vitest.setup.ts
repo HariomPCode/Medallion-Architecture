@@ -1,0 +1,24 @@
+import "@testing-library/jest-dom/vitest";
+import { expect, beforeAll, afterEach, afterAll } from "vitest";
+import * as matchers from "vitest-axe/matchers";
+import type { AxeMatchers } from "vitest-axe/matchers";
+import { server } from "./tests/mocks/server";
+
+declare module "vitest" {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export interface Assertion<T = any> extends AxeMatchers {}
+  export interface AsymmetricMatchersContaining extends AxeMatchers {}
+}
+
+expect.extend(matchers);
+
+// Mock HTMLCanvasElement.prototype.getContext for jsdom axe-core compatibility
+if (typeof HTMLCanvasElement !== "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  HTMLCanvasElement.prototype.getContext = (() => null) as any;
+}
+
+beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+

@@ -29,6 +29,35 @@ The following register captures foundational architectural and technical decisio
 | **D-14** | **Controlled Branching & Progression:** Phase-by-phase development; branch `phase/NN-slug` or develop cleanly on `main` per team git policy; pull requests and exit gates before advancing. | `ACCEPTED-DEFAULT` | Prevents scope creep and ensures each phase satisfies acceptance criteria before downstream work commences. | Strict phase boundaries maintained; Phase 1 executed in isolation. |
 | **D-15** | **Light Theme in v1:** Frontend built strictly in a clean, professional light theme. | `ACCEPTED-DEFAULT` | Scoping decision; ensures high visual polish and contrast on data visualisations before considering themes. | Dark theme deferred to future enhancement. |
 | **D-16** | **Slide-out Explorer Drawer:** Complaint details displayed in a slide-out drawer (`?selected=<id>`) rather than navigating to a separate page. | `ACCEPTED-DEFAULT` | Retains table filtering and pagination context while examining individual complaint records. | Fast, intuitive user experience when triaging multiple complaints. |
+| **D-17** | **Frontend Toolchain & Dependency Versions:** Scaffold Next.js App Router with React 18, Tailwind CSS v3, Vitest, React Testing Library, MSW, vitest-axe, TanStack Query/Table, and openapi-typescript pinned to Node.js 22 LTS. | `ACCEPTED-DEFAULT` | Maximum cross-compatibility across testing libraries, charts (Recharts), and shadcn/ui without peer dependency conflicts or runtime breaking changes. | Stable reproducible CI with `npm ci`; zero unaddressed peer dependency errors. |
+
+### Frontend Toolchain Version Register (Phase 7 Day 1)
+
+| Category | Package / Tool | Version | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Runtime** | Node.js | `22` (`.nvmrc`) | Pinned Active LTS Node runtime for reproducible builds across dev and CI |
+| **Framework** | `next` | `14.2.24` | Next.js App Router (React Server Components, BFF route handlers) |
+| **Core UI** | `react`, `react-dom` | `^18.3.1` | React 18 runtime with full library ecosystem compatibility |
+| **Language** | `typescript` | `^5.7.3` | Strict TypeScript compiler (`"strict": true`, `@/*` paths) |
+| **Styling** | `tailwindcss` | `^3.4.17` | Utility-first CSS engine with CSS custom properties |
+| **Animation** | `tailwindcss-animate` | `^1.0.7` | Standard Tailwind animation plugin for shadcn primitives |
+| **CSS Utilities** | `clsx`, `tailwind-merge` | `^2.1.1`, `^2.6.0` | Conditional class joining and conflict resolution (`cn` helper) |
+| **Component Helper** | `class-variance-authority` | `^0.7.1` | Type-safe variant styling for UI components |
+| **Icons** | `lucide-react` | `^0.475.0` | Accessible icon library for shell and status components |
+| **Charts** | `recharts` | `^2.15.1` | Declarative SVG charting library for analytical views |
+| **Data Fetching** | `@tanstack/react-query` | `^5.66.0` | Asynchronous state management and caching |
+| **Data Tables** | `@tanstack/react-table` | `^8.21.2` | Headless table logic for sorting, pagination, and columns |
+| **API Types** | `openapi-typescript` | `^7.6.1` | Generates TypeScript interfaces directly from `docs/openapi.json` |
+| **Test Runner** | `vitest` | `^2.1.8` | Fast ESM-native test runner with jsdom environment |
+| **Test Plugin** | `@vitejs/plugin-react` | `^4.3.4` | Vite React JSX transformation plugin |
+| **DOM Env** | `jsdom` | `^25.0.1` | Browser DOM simulation for Vitest |
+| **Testing Utilities** | `@testing-library/react` | `^16.2.0` | Component DOM testing |
+| **DOM Assertions** | `@testing-library/jest-dom` | `^6.6.3` | Custom DOM matchers for Vitest assertions |
+| **User Events** | `@testing-library/user-event` | `^14.6.1` | Realistic DOM interaction simulation |
+| **API Mocking** | `msw` | `^2.7.3` | Mock Service Worker for deterministic network interception |
+| **Accessibility** | `vitest-axe` | `^0.1.0` | Automated axe accessibility testing for WCAG 2.1 compliance |
+| **Linter** | `eslint`, `eslint-config-next` | `^8.57.1`, `14.2.24` | Next.js Core Web Vitals and TypeScript lint rules |
+
 
 ---
 

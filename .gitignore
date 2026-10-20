@@ -36,6 +36,7 @@ node_modules/
 out/
 dist/
 .vercel/
+*.tsbuildinfo
 
 # Testing & reports
 playwright-report/
