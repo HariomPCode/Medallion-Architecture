@@ -4,30 +4,159 @@
 
 @layer base {
   :root {
-    --background: 45 14% 96%; /* #F6F6F3 Financial editorial canvas */
-    --foreground: 222 47% 11%;
-    --card: 0 0% 100%; /* #FFFFFF Surface */
-    --card-foreground: 222 47% 11%;
+    /* Core Surfaces & Canvas */
+    --background: 220 20% 97.5%; /* #F7F8FA Warm Off-white Canvas */
+    --foreground: 218 54% 20%;   /* #172B4D Deep Navy Ink */
+
+    /* Cards & Popovers */
+    --card: 0 0% 100%;           /* #FFFFFF Surface */
+    --card-foreground: 218 54% 20%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222 47% 11%;
-    --radius: 0.375rem;
+    --popover-foreground: 218 54% 20%;
+
+    /* Brand / Primary */
+    --primary: 218 54% 20%;      /* #172B4D Deep Navy */
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 220 14% 94%;    /* #EDEFF2 */
+    --secondary-foreground: 218 54% 20%;
+
+    /* Muted Text and Backgrounds */
+    --muted: 220 14% 94%;
+    --muted-foreground: 215 18% 34%; /* #475467 Slate */
+
+    /* Accent (Teal) */
+    --accent: 175 77% 26%;       /* #0F766E Deep Teal */
+    --accent-foreground: 0 0% 100%;
+    --accent-soft: 171 43% 93%;  /* #E6F4F2 Soft Teal */
+    --accent-soft-foreground: 175 77% 26%;
+
+    /* Destructive (Red) */
+    --destructive: 4 77% 41%;    /* #B42318 Crimson */
+    --destructive-foreground: 0 0% 100%;
+    --destructive-soft: 4 86% 97%;
+    --destructive-soft-foreground: 4 77% 41%;
+
+    /* Borders, Inputs, Focus Rings */
+    --border: 220 16% 91%;       /* #E4E7EC Rule */
+    --input: 220 16% 91%;
+    --ring: 175 77% 26%;         /* Teal Focus Ring */
+    --radius: 0.375rem;          /* 6px */
+
+    /* Status Colors (Semantic Light) */
+    --status-success: 155 97% 24%;    /* #027A48 */
+    --status-success-bg: 138 76% 96%; /* #ECFDF3 */
+    --status-warning: 34 83% 31%;     /* #92580E */
+    --status-warning-bg: 36 89% 96%;  /* #FEF7ED */
+    --status-error: 4 77% 41%;        /* #B42318 */
+    --status-error-bg: 4 86% 97%;     /* #FEF3F2 */
+    --status-neutral: 215 18% 34%;    /* #475467 */
+    --status-neutral-bg: 220 14% 96%; /* #F2F4F7 */
+
+    /* Category Palette (Fixed Reference Map) */
+    --cat-banking: 210 49% 36%;        /* #2F5D8A */
+    --cat-payments: 175 77% 26%;       /* #0F766E */
+    --cat-credit-reporting: 32 63% 47%;/* #C27C2C */
+    --cat-lending: 270 25% 48%;        /* #7A5C99 */
+    --cat-collections: 5 46% 45%;      /* #A8483E */
+
+    /* Chart Slot Tokens */
+    --chart-1: var(--cat-banking);
+    --chart-2: var(--cat-payments);
+    --chart-3: var(--cat-credit-reporting);
+    --chart-4: var(--cat-lending);
+    --chart-5: var(--cat-collections);
+  }
+
+  .dark {
+    /* Core Surfaces & Canvas */
+    --background: 225 59% 11%;   /* #0B132B Deep Dark Navy */
+    --foreground: 210 40% 98%;   /* #F8FAFC Bright Text */
+
+    /* Cards & Popovers */
+    --card: 218 45% 15%;         /* #152238 Dark Slate Navy */
+    --card-foreground: 210 40% 98%;
+    --popover: 218 45% 15%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Brand / Primary */
+    --primary: 173 80% 40%;      /* #14B8A6 Vibrant Teal */
+    --primary-foreground: 225 59% 11%;
+
+    /* Secondary */
+    --secondary: 217 33% 20%;    /* #22324A */
+    --secondary-foreground: 210 40% 98%;
+
+    /* Muted Text and Backgrounds */
+    --muted: 217 33% 20%;
+    --muted-foreground: 215 20% 65%; /* #94A3B8 Slate */
+
+    /* Accent (Teal) */
+    --accent: 173 80% 40%;       /* #14B8A6 */
+    --accent-foreground: 225 59% 11%;
+    --accent-soft: 173 50% 18%;
+    --accent-soft-foreground: 173 80% 40%;
+
+    /* Destructive (Red) */
+    --destructive: 0 91% 71%;    /* #F87171 */
+    --destructive-foreground: 225 59% 11%;
+    --destructive-soft: 0 50% 18%;
+    --destructive-soft-foreground: 0 91% 71%;
+
+    /* Borders, Inputs, Focus Rings */
+    --border: 215 39% 22%;       /* #22344D Rule */
+    --input: 215 39% 22%;
+    --ring: 173 80% 40%;         /* Teal Focus Ring */
+
+    /* Status Colors (Semantic Dark) */
+    --status-success: 158 64% 52%;    /* #34D399 */
+    --status-success-bg: 160 84% 12%; /* #064E3B */
+    --status-warning: 43 96% 56%;     /* #FBBF24 */
+    --status-warning-bg: 32 81% 14%;  /* #451A03 */
+    --status-error: 0 91% 71%;        /* #F87171 */
+    --status-error-bg: 0 74% 15%;     /* #450A0A */
+    --status-neutral: 215 20% 65%;    /* #94A3B8 */
+    --status-neutral-bg: 217 33% 17%; /* #1E293B */
+
+    /* Category Palette (Accessible Dark Variations) */
+    --cat-banking: 217 91% 68%;        /* #60A5FA */
+    --cat-payments: 173 80% 40%;       /* #2DD4BF */
+    --cat-credit-reporting: 43 96% 56%;/* #FBBF24 */
+    --cat-lending: 271 91% 75%;        /* #C084FC */
+    --cat-collections: 0 91% 71%;      /* #F87171 */
+
+    /* Chart Slot Tokens */
+    --chart-1: var(--cat-banking);
+    --chart-2: var(--cat-payments);
+    --chart-3: var(--cat-credit-reporting);
+    --chart-4: var(--cat-lending);
+    --chart-5: var(--cat-collections);
   }
 }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased font-sans;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  /* Ensure tabular figures are standard on numeric data classes */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

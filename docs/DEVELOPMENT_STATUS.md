@@ -18,9 +18,9 @@
 ## Current Position
 
 - **Phase:** Phase 7 — Frontend Foundation & Design System
-- **Day:** 1 of 4 (Day 1 Complete)
+- **Day:** 2 of 4 (Day 2 Complete)
 - **Status:** `IN_PROGRESS`
-- **Next action:** Day 1 verification complete. Awaiting review to commence Day 2 (Design tokens, typography, and base components).
+- **Next action:** Day 2 verification complete. Awaiting review to commence Day 3 (Shell, BFF proxy, and API client).
 
 ---
 
@@ -34,7 +34,7 @@
 | **4** | Complaint Explorer, Export & Data Quality APIs | `COMPLETED` | `main` | `bfef48c` | `Verified` | `100 passed, 1 skipped` (93% backend coverage) | Endpoints 9–13, pipeline patch documented (PENDING_HUMAN) |
 | **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `84bb504` | `Verified` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
 | **6** | Backend Hardening & API Freeze | `COMPLETED` | `main` | `1823fc3` | `Verified` | `165 passed` (89% coverage; in-process ASGI load check: 4,000 successful reqs, 0 5xx, 8.0 req/s, p50 2368.2 ms, p95 4205.7 ms; 100 filter consistency pass; secrets 0; contract 100% match) | All AC-6.1 to AC-6.7 pass; contract frozen in `docs/openapi.json`; tag `api-v1.0-frozen` on `d192d10` |
-| **7** | Frontend Foundation & Shell | `IN_PROGRESS` | `main` | — | — | `3 passed` (Vitest: RTL, axe a11y, MSW; lint: 0 errors; typecheck: 0 errors; build: success) | Day 1 complete (scaffold, tooling, CI, smoke tests) |
+| **7** | Frontend Foundation & Shell | `IN_PROGRESS` | `main` | — | — | `50 passed` (7 test files: contrast, format, colors, theme, components, axe a11y, design preview, smoke suite; lint: 0; typecheck: 0; build: success) | Day 1 & Day 2 complete (scaffold, tokens, typography, dark/light theme, base UI primitives, preview route) |
 | **8** | Overview Dashboard & Category Analytics UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 7 |
 | **9** | Complaint Explorer & Data Quality Center UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 8 |
 | **10** | AI Assistant UI & Integration | `NOT_STARTED` | — | — | — | — | Blocked by Phase 9 |
@@ -43,6 +43,40 @@
 ---
 
 ## Today's Log
+
+### 2026-10-20 — Phase 7, Day 2 (Design Tokens, Typography, and Base UI Components)
+
+- **Completed:**
+  - Implemented centralized design-token system in `frontend/app/globals.css` with CSS custom properties for surfaces, primary, secondary, muted, accent (teal `#0F766E`), destructive (crimson `#B42318`), borders, focus rings, status colors (success, warning, error, neutral), and category palette (Banking, Payments, Credit Reporting, Lending, Collections).
+  - Integrated tokens with `frontend/tailwind.config.ts`, mapping colors, fonts, and border radii.
+  - Implemented IBM Plex typography (`IBM_Plex_Sans` and `IBM_Plex_Mono`) via `next/font/google` in `frontend/app/layout.tsx` with self-hosting at build and tabular numeric alignment (`tabular-nums`).
+  - Implemented light and dark themes with zero-flash inline script in `<head>`, system preference detection (`prefers-color-scheme`), and persistent explicit selection via `localStorage` (`fcm-theme`). Created `frontend/components/theme-provider.tsx` and `frontend/components/theme-toggle.tsx`.
+  - Built refined, accessible base UI primitives under `frontend/components/ui/`: `Button` (with variants and sizes), `Input`, `Select`, `Card` (with configurable semantic heading level), `Badge` (with optional status dot so status never relies on color alone), `Skeleton` (accessible loader with reduced-motion support), `Separator`, and `Tooltip`.
+  - Created formatting and color utilities: `frontend/lib/format.ts` (`formatNumber`, `formatDecimal`, `formatCompact`, `formatPercent`, `formatCurrency`, `formatDate`, `formatDateRange` with deterministic UTC parsing and safe null/NaN fallback) and `frontend/lib/colors.ts` (`CATEGORY_COLORS`, `getCategoryColor`, `getStatusVariant`, `getStatusMeta`).
+  - Created development-only design preview route `frontend/app/design/page.tsx` exhibiting typography hierarchy, color tokens, interactive controls, status badges, sample KPI cards, skeletons, and empty/error states; route is protected from production builds via `notFound()` when `NODE_ENV === "production"`.
+  - Built comprehensive test suite covering theme persistence (`tests/theme.test.tsx`), formatting utilities (`tests/format.test.ts`), color & status mappings (`tests/colors.test.ts`), component accessibility & axe audits (`tests/components.test.tsx`), design preview protection (`tests/design-page.test.tsx`), and WCAG 2.1 AA mathematical contrast validation (`tests/contrast.test.ts`).
+- **Checks executed:**
+  - `npm run lint` → 0 warnings, 0 errors.
+  - `npm run typecheck` → 0 errors.
+  - `npm test` → 7 test files passed, 50 tests passed (100% pass).
+  - `npm run build` → Production build succeeded (prerendered static content, 5/5 pages).
+  - `npm run gen:api` → Generated `lib/api/types.ts` from `docs/openapi.json` in 264ms.
+  - Baseline audit `python scripts/audit_baseline.py` → 100% baseline verified (0 discrepancies).
+- **Files created:**
+  - `frontend/components/theme-provider.tsx`, `frontend/components/theme-toggle.tsx`
+  - `frontend/components/ui/button.tsx`, `frontend/components/ui/input.tsx`, `frontend/components/ui/select.tsx`
+  - `frontend/components/ui/card.tsx`, `frontend/components/ui/badge.tsx`, `frontend/components/ui/skeleton.tsx`
+  - `frontend/components/ui/separator.tsx`, `frontend/components/ui/tooltip.tsx`
+  - `frontend/lib/format.ts`, `frontend/lib/colors.ts`
+  - `frontend/app/design/page.tsx`
+  - `frontend/tests/format.test.ts`, `frontend/tests/colors.test.ts`, `frontend/tests/theme.test.tsx`
+  - `frontend/tests/components.test.tsx`, `frontend/tests/design-page.test.tsx`, `frontend/tests/contrast.test.ts`
+- **Files modified:**
+  - `frontend/app/globals.css`, `frontend/app/layout.tsx`, `frontend/app/page.tsx`
+  - `frontend/tailwind.config.ts`, `frontend/vitest.setup.ts`, `frontend/tests/smoke.test.tsx`
+  - `docs/DEVELOPMENT_STATUS.md`
+- **Baseline and Backend preservation:**
+  - Backend source code (`backend/**`), frozen OpenAPI spec (`docs/openapi.json`), original datasets, notebooks, and Power BI report remain 100% untouched.
 
 ### 2026-10-20 — Phase 7, Day 1 (Frontend Scaffold and Tooling)
 

@@ -16,6 +16,10 @@ const config: Config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -33,6 +37,8 @@ const config: Config = {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+          soft: "hsl(var(--destructive-soft))",
+          "soft-foreground": "hsl(var(--destructive-soft-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -41,6 +47,8 @@ const config: Config = {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
+          soft: "hsl(var(--accent-soft))",
+          "soft-foreground": "hsl(var(--accent-soft-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -49,6 +57,38 @@ const config: Config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        status: {
+          success: {
+            DEFAULT: "hsl(var(--status-success))",
+            bg: "hsl(var(--status-success-bg))",
+          },
+          warning: {
+            DEFAULT: "hsl(var(--status-warning))",
+            bg: "hsl(var(--status-warning-bg))",
+          },
+          error: {
+            DEFAULT: "hsl(var(--status-error))",
+            bg: "hsl(var(--status-error-bg))",
+          },
+          neutral: {
+            DEFAULT: "hsl(var(--status-neutral))",
+            bg: "hsl(var(--status-neutral-bg))",
+          },
+        },
+        category: {
+          banking: "hsl(var(--cat-banking))",
+          payments: "hsl(var(--cat-payments))",
+          "credit-reporting": "hsl(var(--cat-credit-reporting))",
+          lending: "hsl(var(--cat-lending))",
+          collections: "hsl(var(--cat-collections))",
+        },
+        chart: {
+          1: "hsl(var(--chart-1))",
+          2: "hsl(var(--chart-2))",
+          3: "hsl(var(--chart-3))",
+          4: "hsl(var(--chart-4))",
+          5: "hsl(var(--chart-5))",
         },
       },
       borderRadius: {

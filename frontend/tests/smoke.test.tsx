@@ -2,10 +2,15 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { axe } from "vitest-axe";
 import HomePage from "@/app/page";
+import { ThemeProvider } from "@/components/theme-provider";
 
 describe("Frontend Foundation Smoke Tests", () => {
   it("renders the application root page with the expected heading", () => {
-    render(<HomePage />);
+    render(
+      <ThemeProvider>
+        <HomePage />
+      </ThemeProvider>
+    );
     const heading = screen.getByRole("heading", {
       level: 1,
       name: /finance complaints medallion/i,
@@ -17,7 +22,11 @@ describe("Frontend Foundation Smoke Tests", () => {
   });
 
   it("passes automated accessibility checks with zero violations", async () => {
-    const { container } = render(<HomePage />);
+    const { container } = render(
+      <ThemeProvider>
+        <HomePage />
+      </ThemeProvider>
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
