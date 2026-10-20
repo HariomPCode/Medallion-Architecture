@@ -185,3 +185,17 @@ export function formatDateRange(
 
   return fallback;
 }
+
+/**
+ * Format a nullable or optional text value with an explicit fallback (e.g. "Not provided" or "—").
+ * Ensures missing fields never render raw null, undefined, or empty strings.
+ */
+export function formatNullable(
+  value: unknown,
+  fallback = "Not provided"
+): string {
+  if (value === null || value === undefined) return fallback;
+  const str = String(value).trim();
+  return str === "" ? fallback : str;
+}
+

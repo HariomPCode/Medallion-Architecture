@@ -1,4 +1,4 @@
-import type { paths } from "./types";
+import type { paths, components } from "./types";
 
 /**
  * Standard typed ApiError wrapping backend and proxy error envelopes.
@@ -183,6 +183,14 @@ export type ComplaintsList =
 
 export type ComplaintDetail =
   paths["/api/v1/complaints/{complaint_id}"]["get"]["responses"]["200"]["content"]["application/json"];
+
+export type ComplaintListItem = components["schemas"]["ComplaintListItem"];
+export type AnomalyListItem = components["schemas"]["AnomalyListItem"];
+export type QualityDimension = components["schemas"]["QualityDimension"];
+export type AnomalySummaryBlock = components["schemas"]["AnomalySummaryBlock"];
+export type ModelMetadata = components["schemas"]["ModelMetadata"];
+export type CategoryAnomalyItem = components["schemas"]["CategoryAnomalyItem"];
+export type CompanyResponseAnomalyItem = components["schemas"]["CompanyResponseAnomalyItem"];
 
 export type QualitySummary =
   paths["/api/v1/quality/summary"]["get"]["responses"]["200"]["content"]["application/json"];

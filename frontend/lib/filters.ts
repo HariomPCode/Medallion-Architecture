@@ -221,6 +221,34 @@ export function filtersToApiParams(
 }
 
 /**
+ * Convert frontend filter state to typed API query parameters for complaint listing and explorer.
+ */
+export function complaintsFiltersToApiParams(
+  filters: ComplaintFilterState
+): Record<string, unknown> {
+  const params = filtersToApiParams(filters);
+  if (filters.q) params.q = filters.q;
+  if (filters.page) params.page = filters.page;
+  if (filters.page_size) params.page_size = Math.min(filters.page_size, 100);
+  if (filters.sort_by) params.sort_by = filters.sort_by;
+  if (filters.sort_dir) params.sort_dir = filters.sort_dir;
+  return params;
+}
+
+/**
+ * Convert frontend filter state to typed API query parameters for CSV export.
+ */
+export function exportFiltersToApiParams(
+  filters: ComplaintFilterState
+): Record<string, unknown> {
+  const params = filtersToApiParams(filters);
+  if (filters.q) params.q = filters.q;
+  if (filters.sort_by) params.sort_by = filters.sort_by;
+  if (filters.sort_dir) params.sort_dir = filters.sort_dir;
+  return params;
+}
+
+/**
  * React hook to synchronize filter state with URL search parameters in Next.js App Router.
  */
 export function useFilters() {
@@ -233,8 +261,19 @@ export function useFilters() {
   }, [searchParams]);
 
   const updateFilters = useCallback(
-    (updater: Partial<ComplaintFilterState> | ((prev: ComplaintFilterState) => Partial<ComplaintFilterState>)) => {
-      const nextFilters = typeof updater === "function" ? updater(filters) : { ...filters, ...updater };
+    (
+      updater:
+        | Partial<ComplaintFilterState>
+        | ((prev: ComplaintFilterState) => Partial<ComplaintFilterState>)
+    ) => {
+      const updates = typeof updater === "function" ? updater(filters) : updater;
+      const nextFilters: ComplaintFilterState = { ...filters, ...updates };
+
+      // If page was not explicitly updated and filter criteria changed, reset page to 1
+      if (!("page" in updates) && filters.page && filters.page > 1) {
+        nextFilters.page = 1;
+      }
+
       const newParams = serializeFiltersToSearchParams(nextFilters, searchParams);
       const query = newParams.toString();
       const nextUrl = query ? `${pathname}?${query}` : pathname;

@@ -9,6 +9,7 @@ import {
   getSortedRowModel,
   SortingState,
   PaginationState,
+  VisibilityState,
   useReactTable,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
@@ -48,6 +49,13 @@ export interface DataTableProps<TData> {
   totalRows?: number;
   onPaginationChange?: (pagination: PaginationState) => void;
   className?: string;
+  // Additive props for Phase 9
+  onRowClick?: (row: TData) => void;
+  caption?: string;
+  captionClassName?: string;
+  rowClassName?: string | ((row: TData) => string);
+  columnVisibility?: VisibilityState;
+  onColumnVisibilityChange?: (updater: any) => void;
 }
 
 /**
@@ -74,6 +82,12 @@ export function DataTable<TData>({
   totalRows,
   onPaginationChange: onPaginationChangeProp,
   className,
+  onRowClick,
+  caption,
+  captionClassName,
+  rowClassName,
+  columnVisibility,
+  onColumnVisibilityChange,
 }: DataTableProps<TData>) {
   // Internal state for sorting if not controlled externally
   const [internalSorting, setInternalSorting] = useState<SortingState>(defaultSorting);
@@ -95,11 +109,13 @@ export function DataTable<TData>({
     state: {
       sorting,
       pagination,
+      ...(columnVisibility !== undefined ? { columnVisibility } : {}),
     },
     getRowId,
     manualSorting,
     manualPagination,
     pageCount: manualPagination ? pageCount : undefined,
+    onColumnVisibilityChange,
     onSortingChange: (updater) => {
       const nextSorting = typeof updater === "function" ? updater(sorting) : updater;
       setInternalSorting(nextSorting);
@@ -131,11 +147,14 @@ export function DataTable<TData>({
     );
   }
 
+  const visibleColumnsCount = table.getVisibleLeafColumns().length || columns.length;
+
   return (
     <div className={cn("space-y-3 w-full", className)}>
       <div className="rounded-lg border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full text-xs text-left border-collapse" role="table">
+            {caption && <caption className={cn("sr-only", captionClassName)}>{caption}</caption>}
             <thead className="bg-muted/60 border-b border-border text-muted-foreground font-semibold uppercase tracking-wider">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
@@ -211,7 +230,7 @@ export function DataTable<TData>({
                 // Loading Skeleton Rows
                 Array.from({ length: 5 }).map((_, rIdx) => (
                   <tr key={`loading-row-${rIdx}`} className="bg-card">
-                    {columns.map((_, cIdx) => (
+                    {Array.from({ length: visibleColumnsCount }).map((_, cIdx) => (
                       <td key={`loading-col-${cIdx}`} className="px-3.5 py-3">
                         <Skeleton className="h-4 w-full max-w-[120px]" />
                       </td>
@@ -222,7 +241,23 @@ export function DataTable<TData>({
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="hover:bg-muted/40 transition-colors focus-within:bg-muted/40"
+                    tabIndex={onRowClick ? 0 : undefined}
+                    onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+                    onKeyDown={
+                      onRowClick
+                        ? (e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              onRowClick(row.original);
+                            }
+                          }
+                        : undefined
+                    }
+                    className={cn(
+                      "hover:bg-muted/40 transition-colors focus-within:bg-muted/40",
+                      onRowClick && "cursor-pointer focus:outline-none focus:bg-muted/60",
+                      typeof rowClassName === "function" ? rowClassName(row.original) : rowClassName
+                    )}
                   >
                     {row.getVisibleCells().map((cell) => {
                       const meta = cell.column.columnDef.meta as
@@ -273,7 +308,7 @@ export function DataTable<TData>({
                 // Empty state row
                 <tr>
                   <td
-                    colSpan={columns.length}
+                    colSpan={visibleColumnsCount}
                     className="h-36 text-center text-muted-foreground p-6"
                   >
                     <DataState

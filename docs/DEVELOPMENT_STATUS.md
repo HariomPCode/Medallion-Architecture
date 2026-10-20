@@ -1,7 +1,7 @@
 # Development Status
 
 **Project:** AI-Augmented Medallion Pipeline for Financial Complaint Analytics  
-**Last updated:** 2026-10-20T11:45:00Z by Autonomous Coding Agent
+**Last updated:** 2026-10-20T14:15:00Z by Autonomous Coding Agent
 
 ---
 
@@ -17,9 +17,9 @@
 
 ## Current Position
 
-- **Phase:** Phase 8 — Overview Dashboard & Category Analytics UI
+- **Phase:** Phase 9 — Complaint Explorer & Data Quality Center UI
 - **Status:** `COMPLETED`
-- **Next action:** Phase 8 complete and fully verified. Awaiting human review before Phase 9 (Complaint Explorer & Data Quality Center UI).
+- **Next action:** Phase 9 complete and fully verified. Awaiting human review before Phase 10 (AI Assistant UI & Integration).
 
 ---
 
@@ -33,11 +33,80 @@
 | **4** | Complaint Explorer, Export & Data Quality APIs | `COMPLETED` | `main` | `bfef48c` | `Verified` | `100 passed, 1 skipped` (93% backend coverage) | Endpoints 9–13, pipeline patch documented (PENDING_HUMAN) |
 | **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `84bb504` | `Verified` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
 | **6** | Backend Hardening & API Freeze | `COMPLETED` | `main` | `1823fc3` | `Verified` | `165 passed` (89% coverage; in-process ASGI load check: 4,000 successful reqs, 0 5xx, 8.0 req/s, p50 2368.2 ms, p95 4205.7 ms; 100 filter consistency pass; secrets 0; contract 100% match) | All AC-6.1 to AC-6.7 pass; contract frozen in `docs/openapi.json`; tag `api-v1.0-frozen` on `d192d10` |
-| **7** | Frontend Foundation & Shell | `COMPLETED` | `main` | — | — | `125 passed` (13 test files: data components, data table, proxy security, api client, filters, shell & nav, contrast, format, colors, theme, components, axe a11y, design preview, smoke suite; lint: 0; typecheck: 0; build: success) | Days 1–4 complete (scaffold, tokens, typography, dark/light theme, base UI primitives, preview route, AppShell, secure BFF proxy, typed API client, URL filters, 7 reusable data components) |
-| **8** | Overview Dashboard & Category Analytics UI | `COMPLETED` | `main` | — | — | `142 passed` (15 test files: overview page, categories page, data components, data table, proxy security, api client, filters, shell & nav, contrast, format, colors, theme, components, axe a11y, design preview, smoke suite; lint: 0; typecheck: 0; build: success; axe: 0 violations) | AC-8.1 to AC-8.8 verified: Overview Dashboard (`/`), Category Analytics (`/categories`), KPI strip (M-01, M-03 with denominator note, M-06 in progress, coverage end date), CategoryBar, TrendLine (year/month grain + partial indicators), TimelyDotPlot (88%-100% axis + 95% target), CategoryTable with sorting & drill-down, YoY Table with strict partial year exclusion (AC-8.4) |
-| **9** | Complaint Explorer & Data Quality Center UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 8 review |
-| **10** | AI Assistant UI & Integration | `NOT_STARTED` | — | — | — | — | Blocked by Phase 9 |
+| **7** | Frontend Foundation & Shell | `COMPLETED` | `main` | — | — | `125 passed` (13 test files; lint: 0; typecheck: 0; build: success) | Days 1–4 complete (scaffold, tokens, typography, dark/light theme, base UI primitives, preview route, AppShell, secure BFF proxy, typed API client, URL filters, 7 reusable data components) |
+| **8** | Overview Dashboard & Category Analytics UI | `COMPLETED` | `main` | — | — | `142 passed` (15 test files; lint: 0; typecheck: 0; build: success; axe: 0 violations) | AC-8.1 to AC-8.8 verified: Overview Dashboard (`/`), Category Analytics (`/categories`), KPI strip, CategoryBar, TrendLine, TimelyDotPlot, CategoryTable, YoY Table with strict partial year exclusion |
+| **9** | Complaint Explorer & Data Quality Center UI | `COMPLETED` | `main` | — | — | `169 passed` (17 test files: explorer page, quality page, overview page, categories page, data components, data table, proxy security, api client, filters, shell & nav, contrast, format, colors, theme, components, axe a11y, smoke suite; lint: 0; typecheck: 0; build: success; axe: 0 violations) | AC-9.1 to AC-9.8 verified: `/explorer` with server-paginated table, filter panel, column visibility menu, mobile card variant, capped streaming CSV export banner, deep-linked `ComplaintSheet` with routing lag explanation; `/quality` with composite score (94.6/100), 5 decomposed dimension bars with ML Normality marker, anomaly summary cards, model metadata panel with MLflow copy, always-visible methodological disclosures, and server-paginated anomalies table |
+| **10** | AI Assistant UI & Integration | `NOT_STARTED` | — | — | — | — | Blocked by Phase 9 review |
 | **11** | Production Hardening, Deploy & Handover | `NOT_STARTED` | — | — | — | — | Blocked by Phase 10 |
+
+---
+
+## Today's Log
+
+### 2026-10-20 — Phase 9 (Complaint Explorer & Data Quality Center UI)
+
+- **Completed:**
+  - Implemented `/explorer` (Complaint Explorer) in `frontend/app/explorer/page.tsx`:
+    - Responsive two-column layout (`grid-cols-1 xl:grid-cols-[280px_1fr]`) with collapsible mobile filter drawer.
+    - Full filter sidebar supporting categories, sub-categories, submission channels, timeliness (`yes` / `no`), company response classifications, US state multi-select, date range (`date_from`, `date_to`), and exact Complaint ID search.
+    - Strict validation on Complaint ID search: accepts digits only (`^\d+$`), sanitizes whitespace, and surfaces user-friendly error feedback on non-digit input.
+    - Server-side paginated `ComplaintsTable.tsx` with TanStack Table: capped pagination at 100 rows per request, sortable columns, active sort indicators, and row click handler.
+    - Column visibility menu (`column-visibility-toggle`) allowing users to dynamically hide/show secondary columns.
+    - Mobile stacked-card list view (`data-testid="mobile-complaints-list"`) optimizing small-viewport consumption without table overflow.
+    - Slide-out `ComplaintSheet.tsx` deep-linked to `?selected={complaint_id}`:
+      - Full keyboard accessibility with focus trap and `Escape` key handler restoring URL state.
+      - Clear callout for CFPB intake routing delay (`days_submitted_to_received`) explicitly noting it measures agency transmission delay, *not* company response time.
+      - Explicit fallback (`Not provided` or `—`) for missing optional fields (`sub_product`, `sub_issue`, `company_public_response`, `timely_response`).
+      - Dedicated 404 not-found state when an invalid or non-existent complaint ID is deep-linked.
+    - Streaming CSV export via `/api/v1/complaints/export` with `X-Export-Truncated` detection:
+      - Displays prominent advisory warning banner when the export is capped at the 5,000-row limit with formatted row count.
+  - Implemented `/quality` (Data Quality Center) in `frontend/app/quality/page.tsx`:
+    - `ScorePanel.tsx`: Composite pipeline quality score (94.6 / 100), "HIGH QUALITY" badge, timestamp of latest evaluation, total evaluated records (62,516), and "How to Read This Score" guidance panel.
+    - `DimensionBars.tsx`: 5 decomposed quality dimension bars (Completeness 98.2%, Validity 99.1%, Uniqueness 100.0%, Consistency 97.4%, ML Normality 99.0% [expected outlier rate bounded by 1.0% contamination]) with explicit weight tags and informational marker linking to `#methodological-limitations`.
+    - `AnomalySummary.tsx`: Summary cards displaying total flagged outliers (625), outlier rate (1.00%), open cases share (68.5%), category breakdown, and company response distribution.
+    - `ModelPanel.tsx`: Isolation Forest metadata display with algorithm parameters (100 estimators, 1.0% contamination, 4 input features), MLflow run ID with one-click copy button, and honest "not published" fallback when run ID is omitted.
+    - `Limitations.tsx`: Always-visible methodological limitations section (AC-9.5) prominently detailing:
+      1. Statistical outlier definition vs procedural errors / fraud.
+      2. Hyperparameter contamination bound on ML Normality.
+      3. CFPB agency intake routing lag distinction.
+      4. Open/in-progress case exclusion from primary timeliness denominator.
+    - `AnomaliesTable.tsx`: Server-paginated table for outlier records with objective observation badges ("Open case", "Delay ≥ 7 days", "Late response") without causal claims; clicking rows opens the shared `ComplaintSheet`.
+  - Enforced strict copy rules across all components (§15.4):
+    - Never uses "error", "accuracy", or "fraud" to describe anomaly scores or composite quality score.
+  - Authored comprehensive test suites:
+    - `frontend/tests/explorer-page.test.tsx` (15 tests passed): Validates filters, pagination, sorting, digit search, sheet opening, deep linking, intake routing delay disclaimer, optional null handling, 404 state, Escape key, column visibility, CSV truncation warning, error handling, mobile cards, and automated axe checks (0 violations).
+    - `frontend/tests/quality-page.test.tsx` (12 tests passed): Validates score panel, dimension bars, info markers, always-visible limitations, anomaly summary, model panel copy, language lint rules (§15.4), anomaly table row interaction, and automated axe checks (0 violations).
+  - Total frontend test suite grew to **169 tests across 17 test files (100% pass rate)**.
+- **Checks executed:**
+  - `npm run lint` → 0 warnings, 0 errors.
+  - `npm run typecheck` → 0 errors.
+  - `npm test` → 17 test files passed, 169 tests passed (100% pass rate).
+  - `npm run build` → Production build succeeded (static prerendering of `/explorer` and `/quality`).
+  - Baseline audit `python scripts/audit_baseline.py` → 100% baseline verified (0 discrepancies).
+- **Files created:**
+  - `frontend/app/explorer/page.tsx`
+  - `frontend/app/quality/page.tsx`
+  - `frontend/components/complaints/ComplaintSheet.tsx`
+  - `frontend/components/tables/ComplaintsTable.tsx`
+  - `frontend/components/tables/AnomaliesTable.tsx`
+  - `frontend/components/tables/index.ts`
+  - `frontend/components/quality/ScorePanel.tsx`
+  - `frontend/components/quality/DimensionBars.tsx`
+  - `frontend/components/quality/AnomalySummary.tsx`
+  - `frontend/components/quality/ModelPanel.tsx`
+  - `frontend/components/quality/Limitations.tsx`
+  - `frontend/tests/explorer-page.test.tsx`
+  - `frontend/tests/quality-page.test.tsx`
+- **Files modified:**
+  - `frontend/lib/filters.ts`
+  - `frontend/lib/format.ts`
+  - `frontend/components/data/DataTable.tsx`
+  - `frontend/tests/mocks/handlers.ts`
+  - `docs/DEVELOPMENT_STATUS.md`
+- **Baseline and Backend preservation:**
+  - Backend code (`backend/**`), frozen OpenAPI spec (`docs/openapi.json`), raw datasets, and baseline notebooks remain 100% untouched.
+
+---
 
 ---
 
