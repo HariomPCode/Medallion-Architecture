@@ -1,3 +1,5 @@
+"use client";
+
 import { notFound } from "next/navigation";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -8,6 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip } from "@/components/ui/tooltip";
+import {
+  KpiStat,
+  KpiStrip,
+  ChartPanel,
+  DataState,
+  FilterBar,
+  DatasetStatusPill,
+  DataTable,
+} from "@/components/data";
+import { ColumnDef } from "@tanstack/react-table";
 import { formatNumber, formatPercent, formatDate, formatCurrency } from "@/lib/format";
 import { CATEGORY_COLORS, type CategoryKey } from "@/lib/colors";
 import { AlertCircle, FileSearch, RefreshCw, Info } from "lucide-react";
@@ -369,6 +381,156 @@ export default function DesignSystemPage() {
               </Button>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* 8. Reusable Data Components (Day 4) */}
+      <section aria-labelledby="data-components-heading" className="space-y-6">
+        <h2 id="data-components-heading" className="text-base font-semibold text-foreground">
+          8. Reusable Data Display Components (Day 4)
+        </h2>
+
+        {/* Dataset Status Pills */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Dataset Status Indicators:</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <DatasetStatusPill status="ready" />
+            <DatasetStatusPill status="local_snapshot" />
+            <DatasetStatusPill status="fixture" />
+            <DatasetStatusPill status="degraded" />
+            <DatasetStatusPill status="stale" />
+            <DatasetStatusPill status="down" />
+          </div>
+        </div>
+
+        {/* FilterBar Showcase */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">FilterBar Component:</p>
+          <FilterBar
+            activeCount={2}
+            isFiltered={true}
+            totalResults={62516}
+            onReset={() => {}}
+            resetLabel="Reset filters"
+          >
+            <Select defaultValue="all" className="w-36 h-8 text-xs">
+              <option value="all">All Products</option>
+              <option value="banking">Banking</option>
+              <option value="payments">Payments</option>
+            </Select>
+            <Select defaultValue="all" className="w-36 h-8 text-xs">
+              <option value="all">All Channels</option>
+              <option value="web">Web</option>
+              <option value="phone">Phone</option>
+            </Select>
+          </FilterBar>
+        </div>
+
+        {/* KPI Strip & KPI Stat Showcase */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">KpiStrip & KpiStat Showcase:</p>
+          <KpiStrip
+            columns={4}
+            items={[
+              {
+                label: "Total Complaints",
+                value: formatNumber(62516),
+                description: "Full snapshot volume",
+                trend: { value: "+16.2%", direction: "up", sentiment: "neutral", label: "YoY" },
+              },
+              {
+                label: "Primary Timely Rate",
+                value: formatPercent(0.9606, 1),
+                description: "Resolved compliance",
+                trend: { value: "+0.8%", direction: "up", sentiment: "positive", label: "vs baseline" },
+              },
+              {
+                label: "Negative Rate Delta",
+                value: formatPercent(0.0394, 1),
+                description: "Untimely complaints",
+                trend: { value: "-1.2%", direction: "down", sentiment: "negative", label: "compliance slip" },
+              },
+              {
+                label: "Loading Skeleton State",
+                loading: true,
+              },
+            ]}
+          />
+        </div>
+
+        {/* ChartPanel Showcase */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">ChartPanel Component:</p>
+          <ChartPanel
+            title="Complaints Volume by Category"
+            description="Illustrative distribution across product categories"
+            summary="Banking (39.7%) and Payments (31.4%) account for over 70% of total complaint volume."
+            height={200}
+            actions={
+              <Button variant="outline" size="sm" className="h-7 text-xs">
+                Export Data
+              </Button>
+            }
+          >
+            <div className="h-full flex items-center justify-center rounded border border-dashed border-border text-xs text-muted-foreground">
+              [Recharts ResponsiveContainer Placeholder — Ready for Phase 8 Chart Integration]
+            </div>
+          </ChartPanel>
+        </div>
+
+        {/* DataTable Showcase */}
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">DataTable Component:</p>
+          <DataTable
+            columns={[
+              {
+                accessorKey: "category",
+                header: "Category",
+                cell: (info) => (
+                  <span className="font-semibold text-foreground">
+                    {String(info.getValue())}
+                  </span>
+                ),
+              },
+              {
+                accessorKey: "subCategory",
+                header: "Sub-Category",
+                cell: (info) => String(info.getValue()),
+              },
+              {
+                accessorKey: "volume",
+                header: "Volume",
+                meta: { align: "right" as const },
+                cell: (info) => formatNumber(info.getValue()),
+              },
+              {
+                accessorKey: "share",
+                header: "Share",
+                meta: { align: "right" as const },
+                cell: (info) => formatPercent(info.getValue(), 1),
+              },
+              {
+                accessorKey: "timelyRate",
+                header: "Timely Rate",
+                meta: { align: "right" as const },
+                cell: (info) => (
+                  <Badge variant="positive" dot>
+                    {formatPercent(info.getValue(), 1)}
+                  </Badge>
+                ),
+              },
+            ]}
+            data={[
+              { category: "Banking", subCategory: "Deposit Accounts", volume: 24814, share: 0.397, timelyRate: 0.964 },
+              { category: "Payments", subCategory: "Card Products", volume: 16197, share: 0.259, timelyRate: 0.956 },
+              { category: "Credit Reporting", subCategory: "Consumer Reporting", volume: 7710, share: 0.123, timelyRate: 0.937 },
+              { category: "Lending", subCategory: "Real Estate Lending", volume: 6601, share: 0.106, timelyRate: 0.998 },
+              { category: "Payments", subCategory: "Money Movement", volume: 3453, share: 0.055, timelyRate: 0.959 },
+              { category: "Collections", subCategory: "Third-Party Collections", volume: 2736, share: 0.044, timelyRate: 0.936 },
+            ]}
+            pageSize={5}
+            pageSizeOptions={[5, 10, 20]}
+          />
         </div>
       </section>
     </div>
