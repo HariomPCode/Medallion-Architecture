@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { Providers } from "@/components/providers";
+import { AppShell } from "@/components/shell/AppShell";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -53,7 +54,9 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
-        <ThemeProvider>{children}</ThemeProvider>
+        <Providers>
+          <AppShell>{children}</AppShell>
+        </Providers>
       </body>
     </html>
   );

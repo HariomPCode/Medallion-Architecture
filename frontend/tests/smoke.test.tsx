@@ -13,7 +13,7 @@ describe("Frontend Foundation Smoke Tests", () => {
     );
     const heading = screen.getByRole("heading", {
       level: 1,
-      name: /finance complaints medallion/i,
+      name: /finance complaints/i,
     });
     expect(heading).toBeInTheDocument();
     expect(

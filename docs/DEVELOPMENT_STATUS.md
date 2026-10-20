@@ -1,7 +1,7 @@
 # Development Status
 
 **Project:** AI-Augmented Medallion Pipeline for Financial Complaint Analytics  
-**Last updated:** 2026-10-20T07:35:00Z by Autonomous Coding Agent  
+**Last updated:** 2026-10-20T11:25:00Z by Autonomous Coding Agent
 
 ---
 
@@ -18,9 +18,9 @@
 ## Current Position
 
 - **Phase:** Phase 7 — Frontend Foundation & Design System
-- **Day:** 2 of 4 (Day 2 Complete)
+- **Day:** 3 of 4 (Day 3 Complete)
 - **Status:** `IN_PROGRESS`
-- **Next action:** Day 2 verification complete. Awaiting review to commence Day 3 (Shell, BFF proxy, and API client).
+- **Next action:** Day 3 verification complete. Awaiting review to commence Day 4 (Shared data components, design checkpoint, and Phase 7 exit gate).
 
 ---
 
@@ -34,7 +34,7 @@
 | **4** | Complaint Explorer, Export & Data Quality APIs | `COMPLETED` | `main` | `bfef48c` | `Verified` | `100 passed, 1 skipped` (93% backend coverage) | Endpoints 9–13, pipeline patch documented (PENDING_HUMAN) |
 | **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `84bb504` | `Verified` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
 | **6** | Backend Hardening & API Freeze | `COMPLETED` | `main` | `1823fc3` | `Verified` | `165 passed` (89% coverage; in-process ASGI load check: 4,000 successful reqs, 0 5xx, 8.0 req/s, p50 2368.2 ms, p95 4205.7 ms; 100 filter consistency pass; secrets 0; contract 100% match) | All AC-6.1 to AC-6.7 pass; contract frozen in `docs/openapi.json`; tag `api-v1.0-frozen` on `d192d10` |
-| **7** | Frontend Foundation & Shell | `IN_PROGRESS` | `main` | — | — | `50 passed` (7 test files: contrast, format, colors, theme, components, axe a11y, design preview, smoke suite; lint: 0; typecheck: 0; build: success) | Day 1 & Day 2 complete (scaffold, tokens, typography, dark/light theme, base UI primitives, preview route) |
+| **7** | Frontend Foundation & Shell | `IN_PROGRESS` | `main` | — | — | `91 passed` (11 test files: proxy security, api client, filters, shell & nav, contrast, format, colors, theme, components, axe a11y, design preview, smoke suite; lint: 0; typecheck: 0; build: success) | Day 1, Day 2 & Day 3 complete (scaffold, tokens, typography, dark/light theme, base UI primitives, preview route, AppShell, secure BFF proxy, typed API client, URL filters) |
 | **8** | Overview Dashboard & Category Analytics UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 7 |
 | **9** | Complaint Explorer & Data Quality Center UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 8 |
 | **10** | AI Assistant UI & Integration | `NOT_STARTED` | — | — | — | — | Blocked by Phase 9 |
@@ -44,7 +44,64 @@
 
 ## Today's Log
 
-### 2026-10-20 — Phase 7, Day 2 (Design Tokens, Typography, and Base UI Components)
+### 2026-10-20 — Phase 7, Day 3 (Application Shell, BFF Proxy, and Typed API Client)
+
+- **Completed:**
+  - Implemented the responsive Application Shell under `frontend/components/shell/` matching the Financial Editorial design system:
+    - `Sidebar.tsx`: Fixed 232px desktop navigation sidebar with brand header, dataset status pill, and 5 primary navigation destinations (`Overview`, `Category Analytics`, `Complaint Explorer`, `Data Quality Center`, `AI Assistant`) with accessible active indicators.
+    - `TopBar.tsx`: Compact 56px header displaying current page title, live dataset status indicator, theme switcher, and mobile menu trigger.
+    - `MobileNav.tsx`: Keyboard-operable modal drawer (`360px`–`1023px`) with `aria-label`, `aria-expanded`, focus trap, escape key dismissal, and backdrop click handler.
+    - `SkipLink.tsx`: Accessible skip-to-content mechanism targeting `#main-content`.
+    - `DatasetStatusPill.tsx`: Visual badge indicating Medallion snapshot status (`Live Snapshot` / `62,516 rows`).
+    - `AppShell.tsx`: Responsive layout container wrapping navigation landmarks and main content without horizontal overflow from 360px through 1920px.
+  - Implemented secure Backend-for-Frontend (BFF) proxy route handler in `frontend/app/api/[...path]/route.ts` and `frontend/lib/api/proxy.ts`:
+    - Strict allow-list enforcement matching frozen OpenAPI spec: `/health/live`, `/health/ready`, `/api/v1/meta/*`, `/api/v1/dashboard/summary`, `/api/v1/analytics/*`, `/api/v1/complaints*` (with regex validation on complaint ID), `/api/v1/quality/*`, `/api/v1/assistant/config`, and `POST /api/v1/assistant/chat`.
+    - Server-side injection of `X-Internal-Key` and `X-Forwarded-For`; zero browser exposure of upstream credentials.
+    - Strict path traversal rejection (`..`, `\`, `://`, `%2e`).
+    - Method-level allow-list (rejects arbitrary HTTP verbs with `405 Method Not Allowed`).
+    - Header sanitization stripping hop-by-hop headers, cookies, authorization, and upstream server metadata.
+    - Upstream timeout handling (30s default, 60s for assistant chat) returning standardized JSON 504 Gateway Timeout error envelopes.
+    - Streaming pass-through support for CSV exports (`/api/v1/complaints/export`).
+    - Strict cache prevention (`Cache-Control: no-store`).
+  - Implemented typed API client in `frontend/lib/api/client.ts`:
+    - Fully typed operations using OpenAPI schema generated in `lib/api/types.ts`: `getDatasetMeta`, `getFiltersMeta`, `getDashboardSummary`, `getCategoryAnalytics`, `getTrends`, `getBreakdown`, `getKpis`, `getComplaints`, `getComplaintDetail`, `exportComplaintsUrl`, `getDataQualityOverview`, `getDataQualityRules`, `getDataQualityDrift`, `getAssistantConfig`, `sendAssistantChat`.
+    - Standardized `ApiError` class with HTTP status, code, details, and request ID.
+    - `buildQueryString` helper with array bracket serialization and undefined stripping.
+    - AbortSignal support across all methods for request cancellation.
+  - Implemented URL-synchronized filter utilities in `frontend/lib/filters.ts`:
+    - Clean serialization and parsing of `ComplaintFilterParams` (`product`, `sub_product`, `issue`, `state`, `submitted_via`, `company_response`, `timely`, `date_from`, `date_to`).
+    - Preservation of non-filter URL query parameters (e.g. `page`, `page_size`, `sort_by`, `theme`).
+    - App Router reactive hook `useFilters()` for two-way synchronization with Next.js navigation.
+  - Created application-wide providers in `frontend/components/providers.tsx`:
+    - TanStack React Query `QueryClientProvider` with sensible defaults (60s stale time, 5min cache time, no retries on 4xx errors, window focus refetch disabled).
+    - `ThemeProvider` integration.
+  - Created shell route placeholders and system boundaries:
+    - Root overview page (`app/page.tsx`), Category analytics (`app/categories/page.tsx`), Complaint explorer (`app/explorer/page.tsx`), Data quality (`app/quality/page.tsx`), and AI assistant (`app/assistant/page.tsx`).
+    - Global error boundary (`app/error.tsx`), loading skeleton (`app/loading.tsx`), and not-found boundary (`app/not-found.tsx`).
+  - Authored comprehensive test suites (41 new tests, 91 total passed across 11 files):
+    - `frontend/tests/proxy-security.test.ts` (17 tests): Validates all 10 security constraints (path whitelist, method whitelist, traversal protection, credential injection, header stripping, query param forwarding, timeout handling, error envelopes).
+    - `frontend/tests/api-client.test.ts` (9 tests): Validates typed requests, query string builder, structured error handling, and abort signals.
+    - `frontend/tests/filters.test.ts` (10 tests): Validates URL search param serialization, deserialization, array handling, and query preservation.
+    - `frontend/tests/shell.test.tsx` (5 tests): Validates desktop navigation links, active states, mobile drawer interactions, skip-to-content accessibility, and zero axe violations.
+- **Checks executed:**
+  - `npm run lint` → 0 warnings, 0 errors.
+  - `npm run typecheck` → 0 errors.
+  - `npm test` → 11 test files passed, 91 tests passed (100% pass).
+  - `npm run build` → Production build succeeded (9/9 routes prerendered / dynamic).
+  - `npm run gen:api` → `docs/openapi.json` → `lib/api/types.ts` in 211ms (0 drift).
+  - Baseline audit `python scripts/audit_baseline.py` → 100% baseline verified (0 discrepancies).
+- **Files created:**
+  - `frontend/components/providers.tsx`
+  - `frontend/components/shell/AppShell.tsx`, `frontend/components/shell/Sidebar.tsx`, `frontend/components/shell/TopBar.tsx`, `frontend/components/shell/MobileNav.tsx`, `frontend/components/shell/DatasetStatusPill.tsx`, `frontend/components/shell/SkipLink.tsx`
+  - `frontend/lib/api/proxy.ts`, `frontend/lib/api/client.ts`, `frontend/lib/filters.ts`
+  - `frontend/app/api/[...path]/route.ts`
+  - `frontend/app/categories/page.tsx`, `frontend/app/explorer/page.tsx`, `frontend/app/quality/page.tsx`, `frontend/app/assistant/page.tsx`
+  - `frontend/app/error.tsx`, `frontend/app/loading.tsx`, `frontend/app/not-found.tsx`
+  - `frontend/tests/proxy-security.test.ts`, `frontend/tests/api-client.test.ts`, `frontend/tests/filters.test.ts`, `frontend/tests/shell.test.tsx`
+- **Files modified:**
+  - `frontend/app/layout.tsx`, `frontend/app/page.tsx`, `frontend/app/design/page.tsx`, `frontend/tests/smoke.test.tsx`, `docs/DEVELOPMENT_STATUS.md`
+- **Baseline and Backend preservation:**
+  - Backend source code (`backend/**`), frozen OpenAPI spec (`docs/openapi.json`), original datasets, notebooks, and Power BI report remain 100% untouched.
 
 - **Completed:**
   - Implemented centralized design-token system in `frontend/app/globals.css` with CSS custom properties for surfaces, primary, secondary, muted, accent (teal `#0F766E`), destructive (crimson `#B42318`), borders, focus rings, status colors (success, warning, error, neutral), and category palette (Banking, Payments, Credit Reporting, Lending, Collections).

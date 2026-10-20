@@ -19,7 +19,7 @@ export default function DesignSystemPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background text-foreground p-6 md:p-10 max-w-6xl mx-auto space-y-10">
+    <div className="space-y-10">
       {/* Dev Advisory Notice */}
       <div
         role="region"
@@ -371,6 +371,6 @@ export default function DesignSystemPage() {
           </Card>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

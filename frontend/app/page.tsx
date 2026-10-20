@@ -1,47 +1,57 @@
 import Link from "next/link";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen p-6 md:p-10 max-w-5xl mx-auto space-y-6">
-      <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Finance Complaints Medallion
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Regulatory intelligence and complaint analytics workbench
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-        </div>
+    <div className="space-y-6">
+      <header className="border-b border-border pb-4">
+        <h1 className="text-xl font-bold tracking-tight text-foreground">
+          Finance Complaints Overview
+        </h1>
+        <p className="text-xs text-muted-foreground mt-1">
+          Regulatory intelligence and complaint analytics workbench
+        </p>
       </header>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle>Frontend Foundation & Design System</CardTitle>
+          <CardTitle as="h2">Phase 7: Frontend Foundation & Shell</CardTitle>
           <Badge variant="positive" dot>
-            Phase 7 Active
+            Shell Active
           </Badge>
         </CardHeader>
         <CardContent className="space-y-3 pt-2">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Phase 7, Day 2 design system established with IBM Plex typography, light and dark themes,
-            accessible Financial Editorial tokens, and refined base UI primitives.
+            The application shell, secure BFF proxy, typed API client, and URL-synchronized
+            filter infrastructure are active. Full Overview analytics panels and charts
+            will be assembled in Phase 8.
           </p>
-          <div className="pt-2">
-            <Link href="/design">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Link href="/categories">
               <Button variant="outline" size="sm">
-                View Design System Preview (/design)
+                Category Analytics
+              </Button>
+            </Link>
+            <Link href="/explorer">
+              <Button variant="outline" size="sm">
+                Complaint Explorer
+              </Button>
+            </Link>
+            <Link href="/quality">
+              <Button variant="outline" size="sm">
+                Data Quality
+              </Button>
+            </Link>
+            <Link href="/assistant">
+              <Button variant="outline" size="sm">
+                AI Assistant
               </Button>
             </Link>
           </div>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }
