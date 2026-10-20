@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 
 export interface ChartPanelProps {
   title: string;
+  titleAs?: "h1" | "h2" | "h3" | "h4";
   description?: string;
   summary?: string;
   actions?: React.ReactNode;
@@ -22,6 +23,7 @@ export interface ChartPanelProps {
   emptyMessage?: string;
   onRetry?: () => void;
   className?: string;
+  "data-testid"?: string;
   children?: React.ReactNode;
 }
 
@@ -31,6 +33,7 @@ export interface ChartPanelProps {
  */
 export function ChartPanel({
   title,
+  titleAs = "h2",
   description,
   summary,
   actions,
@@ -42,15 +45,19 @@ export function ChartPanel({
   emptyMessage,
   onRetry,
   className,
+  "data-testid": testId,
   children,
 }: ChartPanelProps) {
   const heightStyle = typeof height === "number" ? `${height}px` : height;
 
   return (
-    <Card className={cn("flex flex-col justify-between", className)}>
+    <Card
+      className={cn("flex flex-col justify-between", className)}
+      data-testid={testId}
+    >
       <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
         <div className="space-y-1">
-          <CardTitle as="h3" className="text-sm font-semibold tracking-tight text-foreground">
+          <CardTitle as={titleAs} className="text-sm font-semibold tracking-tight text-foreground">
             {title}
           </CardTitle>
           {description && (

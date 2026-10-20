@@ -82,6 +82,20 @@ export function formatPercent(
 }
 
 /**
+ * Format a rate or growth percentage with an explicit positive or negative sign (e.g. +16.2% or -10.1%).
+ */
+export function formatSignedPercent(
+  value: unknown,
+  digits = 1,
+  fallback = DEFAULT_FALLBACK
+): string {
+  const num = toValidNumber(value);
+  if (num === null) return fallback;
+  const formatted = formatPercent(Math.abs(num), digits, fallback);
+  return num > 0 ? `+${formatted}` : num < 0 ? `-${formatted}` : formatted;
+}
+
+/**
  * Format a currency value (e.g. $1,250).
  */
 export function formatCurrency(

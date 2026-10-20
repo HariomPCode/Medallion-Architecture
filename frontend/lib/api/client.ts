@@ -81,12 +81,19 @@ export async function apiGet<T>(
 
     try {
       const errorJson = await response.json();
-      if (errorJson && typeof errorJson === "object" && "error" in errorJson) {
-        const errObj = errorJson.error;
-        errorCode = errObj.code || errorCode;
-        errorMessage = errObj.message || errorMessage;
-        requestId = errObj.request_id;
-        details = errObj.details;
+      if (errorJson && typeof errorJson === "object") {
+        if ("error" in errorJson && typeof errorJson.error === "object") {
+          const errObj = errorJson.error as Record<string, unknown>;
+          errorCode = (errObj.code as string) || errorCode;
+          errorMessage = (errObj.message as string) || errorMessage;
+          requestId = errObj.request_id as string | undefined;
+          details = errObj.details;
+        } else if ("detail" in errorJson) {
+          errorMessage =
+            typeof errorJson.detail === "string"
+              ? errorJson.detail
+              : JSON.stringify(errorJson.detail);
+        }
       }
     } catch {
       // Fallback if response is not JSON
@@ -125,12 +132,19 @@ export async function apiPost<T, B>(
 
     try {
       const errorJson = await response.json();
-      if (errorJson && typeof errorJson === "object" && "error" in errorJson) {
-        const errObj = errorJson.error;
-        errorCode = errObj.code || errorCode;
-        errorMessage = errObj.message || errorMessage;
-        requestId = errObj.request_id;
-        details = errObj.details;
+      if (errorJson && typeof errorJson === "object") {
+        if ("error" in errorJson && typeof errorJson.error === "object") {
+          const errObj = errorJson.error as Record<string, unknown>;
+          errorCode = (errObj.code as string) || errorCode;
+          errorMessage = (errObj.message as string) || errorMessage;
+          requestId = errObj.request_id as string | undefined;
+          details = errObj.details;
+        } else if ("detail" in errorJson) {
+          errorMessage =
+            typeof errorJson.detail === "string"
+              ? errorJson.detail
+              : JSON.stringify(errorJson.detail);
+        }
       }
     } catch {
       // Fallback if response is not JSON

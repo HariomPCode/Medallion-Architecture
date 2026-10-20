@@ -17,10 +17,9 @@
 
 ## Current Position
 
-- **Phase:** Phase 7 — Frontend Foundation & Design System
-- **Day:** 4 of 4 (Phase 7 Complete)
+- **Phase:** Phase 8 — Overview Dashboard & Category Analytics UI
 - **Status:** `COMPLETED`
-- **Next action:** Phase 7 verification complete. Awaiting human review and commit authorization before starting Phase 8 (Overview Dashboard & Category Analytics UI).
+- **Next action:** Phase 8 complete and fully verified. Awaiting human review before Phase 9 (Complaint Explorer & Data Quality Center UI).
 
 ---
 
@@ -35,8 +34,8 @@
 | **5** | Grounded AI Assistant (Backend) | `COMPLETED` | `main` | `84bb504` | `Verified` | `144 passed, 1 skipped` (eval: 26/26 100%) | Tools T1–T8, grounding validator, offline evaluation pass; live Azure OpenAI blocked external |
 | **6** | Backend Hardening & API Freeze | `COMPLETED` | `main` | `1823fc3` | `Verified` | `165 passed` (89% coverage; in-process ASGI load check: 4,000 successful reqs, 0 5xx, 8.0 req/s, p50 2368.2 ms, p95 4205.7 ms; 100 filter consistency pass; secrets 0; contract 100% match) | All AC-6.1 to AC-6.7 pass; contract frozen in `docs/openapi.json`; tag `api-v1.0-frozen` on `d192d10` |
 | **7** | Frontend Foundation & Shell | `COMPLETED` | `main` | — | — | `125 passed` (13 test files: data components, data table, proxy security, api client, filters, shell & nav, contrast, format, colors, theme, components, axe a11y, design preview, smoke suite; lint: 0; typecheck: 0; build: success) | Days 1–4 complete (scaffold, tokens, typography, dark/light theme, base UI primitives, preview route, AppShell, secure BFF proxy, typed API client, URL filters, 7 reusable data components) |
-| **8** | Overview Dashboard & Category Analytics UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 7 review |
-| **9** | Complaint Explorer & Data Quality Center UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 8 |
+| **8** | Overview Dashboard & Category Analytics UI | `COMPLETED` | `main` | — | — | `142 passed` (15 test files: overview page, categories page, data components, data table, proxy security, api client, filters, shell & nav, contrast, format, colors, theme, components, axe a11y, design preview, smoke suite; lint: 0; typecheck: 0; build: success; axe: 0 violations) | AC-8.1 to AC-8.8 verified: Overview Dashboard (`/`), Category Analytics (`/categories`), KPI strip (M-01, M-03 with denominator note, M-06 in progress, coverage end date), CategoryBar, TrendLine (year/month grain + partial indicators), TimelyDotPlot (88%-100% axis + 95% target), CategoryTable with sorting & drill-down, YoY Table with strict partial year exclusion (AC-8.4) |
+| **9** | Complaint Explorer & Data Quality Center UI | `NOT_STARTED` | — | — | — | — | Blocked by Phase 8 review |
 | **10** | AI Assistant UI & Integration | `NOT_STARTED` | — | — | — | — | Blocked by Phase 9 |
 | **11** | Production Hardening, Deploy & Handover | `NOT_STARTED` | — | — | — | — | Blocked by Phase 10 |
 

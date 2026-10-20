@@ -104,8 +104,13 @@ export function KpiStat({
         }`
       : undefined);
 
+  const cardSlug = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
   return (
-    <Card className={cn("p-4 flex flex-col justify-between transition-colors", className)}>
+    <Card
+      className={cn("p-4 flex flex-col justify-between transition-colors", className)}
+      data-testid={`kpi-card-${cardSlug}`}
+    >
       <CardContent className="p-0 space-y-1.5">
         <div className="flex items-start justify-between gap-2">
           <HeadingTag className="text-xs font-medium uppercase tracking-wider text-muted-foreground truncate">

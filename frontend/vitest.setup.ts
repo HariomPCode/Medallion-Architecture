@@ -35,6 +35,15 @@ if (typeof window !== "undefined" && !window.matchMedia) {
   });
 }
 
+// Mock ResizeObserver for jsdom Recharts compatibility
+if (typeof global.ResizeObserver === "undefined") {
+  global.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());

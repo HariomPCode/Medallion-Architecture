@@ -182,6 +182,45 @@ export function hasActiveFilters(filters: ComplaintFilterState): boolean {
 }
 
 /**
+ * Convert frontend filter state to typed API query parameters matching backend schema.
+ */
+export function filtersToApiParams(
+  filters: ComplaintFilterState
+): Record<string, unknown> {
+  const params: Record<string, unknown> = {};
+
+  if (filters.category && filters.category.length > 0) {
+    params.category = filters.category;
+  }
+  if (filters.sub_category && filters.sub_category.length > 0) {
+    params.sub_category = filters.sub_category;
+  }
+  if (filters.submitted_via && filters.submitted_via.length > 0) {
+    params.submitted_via = filters.submitted_via;
+  }
+  if (filters.state && filters.state.length > 0) {
+    params.state = filters.state;
+  }
+  if (filters.company_response && filters.company_response.length > 0) {
+    params.company_response = filters.company_response;
+  }
+  if (filters.timely) {
+    params.timely = [filters.timely.toLowerCase()];
+  }
+  if (filters.issue && filters.issue.length > 0) {
+    params.issue = filters.issue;
+  }
+  if (filters.date_from) {
+    params.date_from = filters.date_from;
+  }
+  if (filters.date_to) {
+    params.date_to = filters.date_to;
+  }
+
+  return params;
+}
+
+/**
  * React hook to synchronize filter state with URL search parameters in Next.js App Router.
  */
 export function useFilters() {
